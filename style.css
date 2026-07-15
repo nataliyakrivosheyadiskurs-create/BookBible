@@ -911,3 +911,45 @@ body {
   border-bottom: 0.5px solid var(--parch3);
 }
 .form-section-title:first-child { margin-top: 0; }
+
+/* ── FOCAL POINT ── */
+.focal-zone {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.focal-zone:hover {
+  background: rgba(139, 58, 26, 0.35);
+}
+.focal-zone span {
+  color: white;
+  font-size: 11px;
+  font-family: 'Jost', sans-serif;
+  background: rgba(0,0,0,0.45);
+  padding: 3px 10px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.focal-zone:hover span { opacity: 1; }
+
+.focal-btn {
+  background: var(--parch2);
+  border: 0.5px solid var(--parch3);
+  color: var(--ink2);
+  padding: 6px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.focal-btn:hover { border-color: var(--accent); color: var(--accent); }
+.focal-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
