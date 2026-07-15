@@ -13,6 +13,12 @@ const EMOTIONS = ['Нейтральное','Радость','Гнев','Грус
 const CHAR_FIELDS = [
   'name','nickname','role','gender','birth_date','death_date','book','emoji','tags','avatar_image_id',
   'appearance','height','body_type','hair','eyes','skin','distinctive_marks','style','voice',
+  'build_strength','posture','handedness','gait','mannerisms',
+  'face_shape','forehead','cheekbones','chin','jaw',
+  'skin_tan','eye_shape','eye_set','brows_lashes','gaze',
+  'nose','lips','ears','neck','hands',
+  'hair_texture','hairstyle','accessories','footwear','personal_items','color_palette',
+  'first_impression','signature_feature',
   'personality','strengths','weaknesses','fears','desires','habits','speech_style','worldview','motivation','secret',
   'bio','backstory','key_events','arc','notes'
 ];
