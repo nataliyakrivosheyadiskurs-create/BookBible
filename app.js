@@ -11,7 +11,7 @@ const COLORS = ['#8b3a1a','#2a5c8b','#2a8b4a','#8b2a7a','#8b7a2a','#2a7a8b','#6b
 const EMOTIONS = ['Нейтральное','Радость','Гнев','Грусть','Страх','Удивление','Решимость'];
 
 const CHAR_FIELDS = [
-  'name','nickname','role','gender','birth_date','death_date','book','emoji','tags','avatar_image_id',
+  'name','nickname','role','gender','birth_date','death_date','book','emoji','tags','avatar_image_id','avatar_position',
   'appearance','height','body_type','hair','eyes','skin','distinctive_marks','style','voice',
   'build_strength','posture','handedness','gait','mannerisms',
   'face_shape','forehead','cheekbones','chin','jaw',
@@ -171,9 +171,12 @@ function renderGrid(list) {
     const imgs = getImages(c.id), rels = getRels(c.id), cBooks = getCharBooks(c.id);
     const avatarImg = imgs.find(i => i.id === c.avatar_image_id) || imgs[0];
     const mainImg = avatarImg;
+    const avatarPos = c.avatar_position || 'top';
+    const posMap = { top: '50% 15%', center: '50% 50%', bottom: '50% 85%' };
+    const objPos = posMap[avatarPos] || '50% 15%';
     const bookBadges = cBooks.map(b => `<span class="book-badge">${b.book_title}</span>`).join('');
     return `<div class="char-card" onclick="openChar('${c.id}')">
-      ${mainImg ? `<img class="char-card-img" src="${mainImg.url}" alt="${c.name}">` : `<div class="char-card-img-placeholder" style="background:${colorFor(c)}15">${c.emoji||'👤'}</div>`}
+      ${mainImg ? `<img class="char-card-img" src="${mainImg.url}" alt="${c.name}" style="object-position:${objPos}">` : `<div class="char-card-img-placeholder" style="background:${colorFor(c)}15">${c.emoji||'👤'}</div>`}
       <div class="char-card-body">
         <div class="char-card-name">${c.name}</div>
         <div class="char-card-role">${c.role||''}</div>
@@ -248,7 +251,7 @@ function renderDetail() {
     <div class="detail-layout">
       <div class="detail-sidebar">
         <div class="detail-avatar" style="background:${col}18">
-          ${(() => { const av = imgs.find(i => i.id === c.avatar_image_id) || imgs[0]; return av ? `<img src="${av.url}" alt="${c.name}">` : `<div class="detail-avatar-placeholder">${c.emoji||'👤'}</div>`; })()}
+          ${(() => { const av = imgs.find(i => i.id === c.avatar_image_id) || imgs[0]; const pos = {'top':'50% 15%','center':'50% 50%','bottom':'50% 85%'}[c.avatar_position||'top']||'50% 15%'; return av ? `<img src="${av.url}" alt="${c.name}" style="object-position:${pos}">` : `<div class="detail-avatar-placeholder">${c.emoji||'👤'}</div>`; })()}
         </div>
         <div class="section-title">Галерея</div>
         ${imgsHtml}
@@ -616,12 +619,42 @@ async function uploadImage() {
   finally{btn.disabled=false;document.getElementById('uploadBtnText').textContent='Загрузить';}
 }
 async function setAvatar(charId, imgId) {
+  showFocalModal(charId, imgId);
+}
+
+function showFocalModal(charId, imgId) {
+  const img = images.find(i => i.id === imgId);
+  if (!img) return;
+  document.getElementById('focal-char-id').value = charId;
+  document.getElementById('focal-img-id').value = imgId;
+  document.getElementById('focal-preview').src = img.url;
+  // Reset buttons
+  document.querySelectorAll('.focal-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.focal-btn[data-pos="top"]').classList.add('active');
+  document.getElementById('focalModal').style.display = 'flex';
+}
+
+async function applyFocal(position) {
+  document.querySelectorAll('.focal-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.focal-btn[data-pos="${position}"]`).classList.add('active');
+  document.getElementById('focal-position').value = position;
+}
+
+async function confirmAvatar() {
+  const charId = document.getElementById('focal-char-id').value;
+  const imgId = document.getElementById('focal-img-id').value;
+  const position = document.getElementById('focal-position').value || 'top';
   try {
-    const { error } = await db.from('characters').update({ avatar_image_id: imgId }).eq('id', charId);
+    const { error } = await db.from('characters').update({ avatar_image_id: imgId, avatar_position: position }).eq('id', charId);
     if (error) throw error;
     const c = getChar(charId);
-    if (c) c.avatar_image_id = imgId;
-    if (currentChar && currentChar.id === charId) { currentChar.avatar_image_id = imgId; renderDetail(); }
+    if (c) { c.avatar_image_id = imgId; c.avatar_position = position; }
+    if (currentChar && currentChar.id === charId) {
+      currentChar.avatar_image_id = imgId;
+      currentChar.avatar_position = position;
+      renderDetail();
+    }
+    hideModal('focalModal');
     renderGrid();
     showToast('Аватар обновлён');
   } catch(e) { showToast('Ошибка'); }
