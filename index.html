@@ -232,24 +232,95 @@
 
     <!-- PERSONALITY -->
     <div id="mtab-personality" style="display:none">
-      <div class="form-group"><label class="form-label">Характер (общее)</label><textarea class="form-input form-textarea" id="f-personality" placeholder="Основные черты характера..."></textarea></div>
+
+      <div class="form-section-title">Основа личности</div>
+      <div class="form-group"><label class="form-label">Три слова, которые лучше всего описывают персонажа</label><input type="text" class="form-input" id="f-personality_words" placeholder="Смелый, саркастичный, преданный"></div>
+      <div class="form-group"><label class="form-label">Три слова, которые ему совершенно не подходят</label><input type="text" class="form-input" id="f-personality_not" placeholder="Трусливый, мелочный, равнодушный"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Темперамент</label><input type="text" class="form-input" id="f-temperament" placeholder="Холерик, сангвиник, меланхолик..."></div>
+        <div class="form-group"><label class="form-label">Интроверт или экстраверт</label><input type="text" class="form-input" id="f-introvert" placeholder="Интроверт / экстраверт / амбиверт"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Что важнее: разум, чувства или долг?</label><input type="text" class="form-input" id="f-core_priority" placeholder="Разум / чувства / долг — почему?"></div>
+      <div class="form-group"><label class="form-label">Шкалы (от 1 до 10)</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-personality_scales" placeholder="Эмоциональность: 7&#10;Импульсивность: 4&#10;Терпение: 8&#10;Уверенность в себе: 6&#10;Упрямство: 9"></textarea></div>
+      <div class="form-group"><label class="form-label">Общее описание характера</label><textarea class="form-input form-textarea" id="f-personality" placeholder="Основные черты, как ведёт себя в целом..."></textarea></div>
+
+      <div class="form-section-title">Самооценка</div>
+      <div class="form-group"><label class="form-label">Любит ли себя? Считает ли себя хорошим человеком?</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-self_esteem" placeholder="Часто ли сомневается в себе, что думает о своей внешности..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Главное достоинство (своими глазами)</label><input type="text" class="form-input" id="f-self_strength" placeholder="Что считает лучшим в себе"></div>
+        <div class="form-group"><label class="form-label">Главный недостаток (своими глазами)</label><input type="text" class="form-input" id="f-self_weakness" placeholder="Что считает худшим в себе"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Чего боится в плане самооценки</label><input type="text" class="form-input" id="f-self_fears" placeholder="Боится показаться смешным / ошибиться / быть отвергнутым..."></div>
+
+      <div class="form-section-title">Ценности и мораль</div>
+      <div class="form-group"><label class="form-label">Мировоззрение / что важнее всего в жизни</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-worldview" placeholder="За что готов умереть? За что никогда не станет бороться?"></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Что считает непростительным</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-unforgivable" placeholder="Что никогда не простит другу? Что простит даже врагу?"></textarea></div>
+        <div class="form-group"><label class="form-label">Моральные границы</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-moral_limits" placeholder="Может ли соврать ради добра? Украсть? Убить? Где его черта?"></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Качества которые уважает / ненавидит в людях</label><input type="text" class="form-input" id="f-people_values" placeholder="Уважает честность и смелость, ненавидит предательство..."></div>
+
+      <div class="form-section-title">Страхи и желания</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Страхи</label><textarea class="form-input form-textarea" style="min-height:90px" id="f-fears" placeholder="Самый большой страх&#10;Самый иррациональный&#10;Детские страхи&#10;Боится ли смерти / одиночества / ответственности..."></textarea></div>
+        <div class="form-group"><label class="form-label">Желания и мечты</label><textarea class="form-input form-textarea" style="min-height:90px" id="f-desires" placeholder="О чём мечтает&#10;Главная цель&#10;Скрытая цель&#10;Что делает счастливым&#10;Чем бы занимался без ограничений..."></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Главная мотивация</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-motivation" placeholder="Что движет персонажем в истории..."></textarea></div>
+
+      <div class="form-section-title">Общение и отношения</div>
+      <div class="form-group"><label class="form-label">Общение с людьми</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-social" placeholder="Легко ли знакомится? Любит большие компании? Как ведёт себя среди незнакомых? Любит быть в центре внимания? Слушает или говорит? Перебивает?"></textarea></div>
+      <div class="form-group"><label class="form-label">Дружба</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-friendship" placeholder="Как выбирает друзей? Легко ли доверяет? Как показывает привязанность? Есть ли собственничество? Просит ли помощи?"></textarea></div>
+      <div class="form-group"><label class="form-label">Поведение среди близких</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-behavior_close" placeholder="Каким становится рядом с друзьями / семьёй / любимым человеком / когда один?"></textarea></div>
+
+      <div class="form-section-title">Конфликты и лидерство</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Конфликты</label><textarea class="form-input form-textarea" style="min-height:90px" id="f-conflict_style" placeholder="Как реагирует на критику? Как спорит? Признаёт ли неправоту? Мстит ли? Быстро ли остывает? Может помнить обиду годами?"></textarea></div>
+        <div class="form-group"><label class="form-label">Лидерство</label><textarea class="form-input form-textarea" style="min-height:90px" id="f-leadership" placeholder="Любит руководить? Умеет? Любит подчиняться? Берёт ответственность? Делегирует? Контролирует окружающих?"></textarea></div>
+      </div>
+
+      <div class="form-section-title">Интеллект и мышление</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Интеллект</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-intellect" placeholder="Что лучше всего получается? Быстро ли учится? Любит книги или практику? Хорошая ли память? Замечает детали?"></textarea></div>
+        <div class="form-group"><label class="form-label">Особенности мышления</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-thinking_style" placeholder="Рационален или интуитивен? Планирует наперёд? Долго принимает решения? Может изменить мнение? Верит на слово?"></textarea></div>
+      </div>
+
+      <div class="form-section-title">Эмоции и чувства</div>
+      <div class="form-group"><label class="form-label">Эмоциональность</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-emotions" placeholder="Легко ли влюбляется? Может ли плакать при людях? Часто ли испытывает вину? Легко ли прощает себя?"></textarea></div>
+      <div class="form-group"><label class="form-label">Реакция на стресс</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-stress_response" placeholder="Замыкается? Становится раздражительным? Работает ещё больше? Теряет аппетит? Ищет поддержку?"></textarea></div>
+
+      <div class="form-section-title">Речь и юмор</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Манера речи</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-speech_style" placeholder="Говорит быстро или медленно? Простыми или сложными словами? Любит длинные объяснения? Использует термины? Часто говорит «я»?"></textarea></div>
+        <div class="form-group"><label class="form-label">Юмор</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-humor" placeholder="Любит шутить? Понимает сарказм? Какой юмор предпочитает? Над чем никогда не смеётся? Может смеяться над собой?"></textarea></div>
+      </div>
+
+      <div class="form-section-title">Повседневное</div>
+      <div class="form-group"><label class="form-label">Повседневные привычки</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-habits" placeholder="Рано или поздно встаёт? Аккуратный? Опаздывает? Планирует день? Любит рутину или перемены?"></textarea></div>
+      <div class="form-group"><label class="form-label">Маленькие слабости и любимое</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-favorites" placeholder="Любимое блюдо, напиток, время суток, место, время года, запах, музыка, тайное занятие..."></textarea></div>
+      <div class="form-group"><label class="form-label">Что выводит из себя</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-triggers" placeholder="Какие поступки раздражают? Какие слова ранят? Что вызывает презрение / восхищение?"></textarea></div>
+
+      <div class="form-section-title">Сильные стороны и слабости</div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Сильные стороны</label><textarea class="form-input form-textarea" id="f-strengths" placeholder="Смелость, эмпатия, острый ум..."></textarea></div>
-        <div class="form-group"><label class="form-label">Слабые стороны / пороки</label><textarea class="form-input form-textarea" id="f-weaknesses" placeholder="Вспыльчивость, неверие в себя..."></textarea></div>
+        <div class="form-group"><label class="form-label">Слабые стороны</label><textarea class="form-input form-textarea" id="f-weaknesses" placeholder="Вспыльчивость, неверие в себя..."></textarea></div>
       </div>
+
+      <div class="form-section-title">Внутренние противоречия</div>
+      <div class="form-group"><label class="form-label">Главные парадоксы личности</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-paradoxes" placeholder="Очень смелый, но боится темноты&#10;Терпеть не может ложь, но постоянно недоговаривает&#10;Любит одиночество, но страдает без людей..."></textarea></div>
+      <div class="form-group"><label class="form-label">Внутренние противоречия</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-inner_conflicts" placeholder="Что говорит, но сам не соблюдает? В чём обманывает себя? Чего хочет, но не позволит? Что ненавидит в себе?"></textarea></div>
+      <div class="form-group"><label class="form-label">Как его воспринимают разные люди</label><textarea class="form-input form-textarea" style="min-height:80px" id="f-perception" placeholder="Первое впечатление&#10;После недели знакомства&#10;После года дружбы&#10;Глазами врагов&#10;Глазами детей / пожилых..."></textarea></div>
+
+      <div class="form-section-title">Самые глубокие вопросы</div>
+      <div class="form-group"><label class="form-label">Что делает, когда никто не видит?</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-alone_behavior" placeholder=""></textarea></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Страхи</label><textarea class="form-input form-textarea" id="f-fears" placeholder="Чего боится больше всего..."></textarea></div>
-        <div class="form-group"><label class="form-label">Желания и мечты</label><textarea class="form-input form-textarea" id="f-desires" placeholder="К чему стремится в глубине души..."></textarea></div>
+        <div class="form-group"><label class="form-label">Самая счастливая память</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-happiest_memory" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Самая болезненная память</label><textarea class="form-input form-textarea" style="min-height:70px" id="f-painful_memory" placeholder=""></textarea></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Привычки и quirks</label><textarea class="form-input form-textarea" id="f-habits" placeholder="Теребит волосы, кусает губу..."></textarea></div>
-        <div class="form-group"><label class="form-label">Манера речи</label><textarea class="form-input form-textarea" id="f-speech_style" placeholder="Говорит кратко, использует сарказм..."></textarea></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Мировоззрение / ценности</label><textarea class="form-input form-textarea" id="f-worldview" placeholder="Во что верит, что считает важным..."></textarea></div>
-        <div class="form-group"><label class="form-label">Главная мотивация</label><textarea class="form-input form-textarea" id="f-motivation" placeholder="Что движет персонажем..."></textarea></div>
-      </div>
-      <div class="form-group"><label class="form-label">Тайна / то, что скрывает</label><textarea class="form-input form-textarea" id="f-secret" placeholder="Что не рассказывает другим..."></textarea></div>
+      <div class="form-group"><label class="form-label">За что стыдно спустя годы? Какую ошибку не может себе простить?</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-regrets" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Что хотел бы услышать от самого дорогого человека?</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-longing" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Что никогда не скажет вслух?</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-secret" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Если бы мог изменить одно событие в жизни — что?</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-would_change" placeholder=""></textarea></div>
+
     </div>
 
     <!-- STORY -->
