@@ -144,21 +144,90 @@
 
     <!-- APPEARANCE -->
     <div id="mtab-appearance" style="display:none">
+
+      <div class="form-section-title">Общие параметры</div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Рост</label><input type="text" class="form-input" id="f-height" placeholder="175 см"></div>
-        <div class="form-group"><label class="form-label">Телосложение</label><input type="text" class="form-input" id="f-body_type" placeholder="Стройное, атлетическое..."></div>
+        <div class="form-group"><label class="form-label">Телосложение</label><input type="text" class="form-input" id="f-body_type" placeholder="Худощавый, спортивный, широкоплечий..."></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Волосы</label><input type="text" class="form-input" id="f-hair" placeholder="Цвет, длина, текстура"></div>
-        <div class="form-group"><label class="form-label">Глаза</label><input type="text" class="form-input" id="f-eyes" placeholder="Цвет, форма, особенности"></div>
+        <div class="form-group"><label class="form-label">Физическая сила (впечатление)</label><input type="text" class="form-input" id="f-build_strength" placeholder="Выглядит хрупко / мощно / средне"></div>
+        <div class="form-group"><label class="form-label">Осанка</label><input type="text" class="form-input" id="f-posture" placeholder="Прямая, сутулится, расслабленная..."></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Кожа</label><input type="text" class="form-input" id="f-skin" placeholder="Тон, текстура, особенности"></div>
-        <div class="form-group"><label class="form-label">Голос</label><input type="text" class="form-input" id="f-voice" placeholder="Тембр, акцент, манера речи"></div>
+        <div class="form-group"><label class="form-label">Правша / левша</label><input type="text" class="form-input" id="f-handedness" placeholder="Правша / левша / оба"></div>
+        <div class="form-group"><label class="form-label">Походка</label><input type="text" class="form-input" id="f-gait" placeholder="Быстрая, бесшумная, широкий шаг..."></div>
       </div>
-      <div class="form-group"><label class="form-label">Особые приметы / шрамы / татуировки</label><textarea class="form-input form-textarea" id="f-distinctive_marks" placeholder="Шрам на запястье, родинка под левым глазом..."></textarea></div>
-      <div class="form-group"><label class="form-label">Стиль одежды</label><textarea class="form-input form-textarea" id="f-style" placeholder="Как одевается, что предпочитает носить..."></textarea></div>
-      <div class="form-group"><label class="form-label">Общее описание внешности</label><textarea class="form-input form-textarea" id="f-appearance" placeholder="Подробное описание..."></textarea></div>
+      <div class="form-group"><label class="form-label">Манера держаться</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-mannerisms" placeholder="Руки в карманах, теребит рукав, жестикулирует, держит спину прямо..."></textarea></div>
+
+      <div class="form-section-title">Лицо</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Форма лица</label><input type="text" class="form-input" id="f-face_shape" placeholder="Овальное, круглое, вытянутое, квадратное..."></div>
+        <div class="form-group"><label class="form-label">Лоб</label><input type="text" class="form-input" id="f-forehead" placeholder="Высокий / низкий, широкий / узкий"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Скулы</label><input type="text" class="form-input" id="f-cheekbones" placeholder="Выраженные, мягкие, незаметные"></div>
+        <div class="form-group"><label class="form-label">Подбородок</label><input type="text" class="form-input" id="f-chin" placeholder="Острый, широкий, округлый, тяжёлый"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Челюсть</label><input type="text" class="form-input" id="f-jaw" placeholder="Мягкая, выраженная, угловатая"></div>
+
+      <div class="form-section-title">Кожа</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Оттенок кожи</label><input type="text" class="form-input" id="f-skin" placeholder="Бледная, смуглая, оливковая..."></div>
+        <div class="form-group"><label class="form-label">Загар / веснушки</label><input type="text" class="form-input" id="f-skin_tan" placeholder="Легко загорает, есть веснушки..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Особые приметы (родинки, шрамы, ожоги, морщины)</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-distinctive_marks" placeholder="Шрам на запястье, родинка под левым глазом, состояние кожи..."></textarea></div>
+
+      <div class="form-section-title">Глаза</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Цвет глаз</label><input type="text" class="form-input" id="f-eyes" placeholder="Карие, серые, зелёные..."></div>
+        <div class="form-group"><label class="form-label">Размер и форма глаз</label><input type="text" class="form-input" id="f-eye_shape" placeholder="Большие миндалевидные, маленькие узкие..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Расположение глаз</label><input type="text" class="form-input" id="f-eye_set" placeholder="Глубоко посажены, близко / далеко друг от друга"></div>
+        <div class="form-group"><label class="form-label">Ресницы и брови</label><input type="text" class="form-input" id="f-brows_lashes" placeholder="Длинные ресницы, густые брови, тонкие дуги..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Взгляд</label><input type="text" class="form-input" id="f-gaze" placeholder="Острый, рассеянный, тёплый, смотрит в сторону..."></div>
+
+      <div class="form-section-title">Нос, губы, уши</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Нос</label><input type="text" class="form-input" id="f-nose" placeholder="Прямой, курносый, с горбинкой, широкий..."></div>
+        <div class="form-group"><label class="form-label">Губы</label><input type="text" class="form-input" id="f-lips" placeholder="Тонкие, полные, уголки вниз, часто улыбается..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Уши</label><input type="text" class="form-input" id="f-ears" placeholder="Маленькие, прижатые, торчат, скрыты волосами..."></div>
+
+      <div class="form-section-title">Шея и руки</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Шея</label><input type="text" class="form-input" id="f-neck" placeholder="Длинная, короткая, тонкая, крепкая..."></div>
+        <div class="form-group"><label class="form-label">Руки и кисти</label><input type="text" class="form-input" id="f-hands" placeholder="Длинные пальцы, мозоли, ухоженные ногти..."></div>
+      </div>
+
+      <div class="form-section-title">Волосы</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Цвет волос</label><input type="text" class="form-input" id="f-hair" placeholder="Чёрный, рыжий, пепельный..."></div>
+        <div class="form-group"><label class="form-label">Текстура и густота</label><input type="text" class="form-input" id="f-hair_texture" placeholder="Густые, тонкие, прямые, кудрявые..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Причёска и поведение волос</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-hairstyle" placeholder="Пробор, есть ли чёлка, выбиваются пряди, как ведут себя на ветру..."></textarea></div>
+
+      <div class="form-section-title">Голос</div>
+      <div class="form-group"><label class="form-label">Голос</label><input type="text" class="form-input" id="f-voice" placeholder="Громкий / тихий, уверенный, мягкий, хриплый..."></div>
+
+      <div class="form-section-title">Одежда и аксессуары</div>
+      <div class="form-group"><label class="form-label">Стиль одежды</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-style" placeholder="Любимые ткани, качество, аккуратная или поношенная, любимые / нелюбимые цвета..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Аксессуары</label><input type="text" class="form-input" id="f-accessories" placeholder="Часы, перчатки, шарф, головной убор, украшения..."></div>
+        <div class="form-group"><label class="form-label">Обувь</label><input type="text" class="form-input" id="f-footwear" placeholder="Сапоги, туфли, потёртая / дорогая / чистая..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Личные предметы (почти всегда при нём)</label><input type="text" class="form-input" id="f-personal_items" placeholder="Блокнот, компас, нож, трость, очки, ключи..."></div>
+      <div class="form-group"><label class="form-label">Цветовая палитра образа</label><input type="text" class="form-input" id="f-color_palette" placeholder="Любимые цвета, цвета которые никогда не носит..."></div>
+
+      <div class="form-section-title">Впечатление и узнаваемость</div>
+      <div class="form-group"><label class="form-label">Первое впечатление незнакомца</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-first_impression" placeholder="«Ему можно доверять», «Выглядит опасным», «Похож на учёного»..."></textarea></div>
+      <div class="form-group"><label class="form-label">Что делает персонажа узнаваемым</label><textarea class="form-input form-textarea" style="min-height:60px" id="f-signature_feature" placeholder="Взгляд, улыбка, шрам, характерная поза, прическа..."></textarea></div>
+
+      <div class="form-section-title">Итоговое описание</div>
+      <div class="form-group"><label class="form-label">Развёрнутое описание внешности</label><textarea class="form-input form-textarea" style="min-height:100px" id="f-appearance" placeholder="Описание своими словами — всё что важно и не вошло выше..."></textarea></div>
+
     </div>
 
     <!-- PERSONALITY -->
