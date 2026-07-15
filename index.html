@@ -481,6 +481,40 @@
   </div>
 </div>
 
+<!-- FOCAL POINT MODAL -->
+<div id="focalModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'focalModal')">
+  <div class="modal" style="max-width:400px">
+    <h2>Выбрать фокус аватара</h2>
+    <input type="hidden" id="focal-char-id">
+    <input type="hidden" id="focal-img-id">
+    <input type="hidden" id="focal-position" value="top">
+    <p style="font-size:13px;color:var(--ink3);margin-bottom:1rem">Выбери какая часть изображения будет видна на карточке</p>
+    <div style="position:relative;border-radius:8px;overflow:hidden;margin-bottom:1rem">
+      <img id="focal-preview" style="width:100%;height:220px;object-fit:cover;display:block" alt="">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column">
+        <div class="focal-zone" onclick="applyFocal('top')" title="Верх (лицо)">
+          <span>▲ Верх — лицо</span>
+        </div>
+        <div class="focal-zone" onclick="applyFocal('center')" title="Центр">
+          <span>● Центр</span>
+        </div>
+        <div class="focal-zone" onclick="applyFocal('bottom')" title="Низ">
+          <span>▼ Низ</span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:1.25rem">
+      <button class="focal-btn active" data-pos="top" onclick="applyFocal('top')">▲ Верх</button>
+      <button class="focal-btn" data-pos="center" onclick="applyFocal('center')">● Центр</button>
+      <button class="focal-btn" data-pos="bottom" onclick="applyFocal('bottom')">▼ Низ</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('focalModal')">Отмена</button>
+      <button class="btn-save" onclick="confirmAvatar()">Сохранить аватар</button>
+    </div>
+  </div>
+</div>
+
 <div id="lightbox" class="lightbox" style="display:none" onclick="closeLightbox()">
   <span class="lightbox-close"><i class="ti ti-x"></i></span>
   <img id="lbImg" src="" alt="">
