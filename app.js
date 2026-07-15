@@ -19,7 +19,15 @@ const CHAR_FIELDS = [
   'nose','lips','ears','neck','hands',
   'hair_texture','hairstyle','accessories','footwear','personal_items','color_palette',
   'first_impression','signature_feature',
-  'personality','strengths','weaknesses','fears','desires','habits','speech_style','worldview','motivation','secret',
+  'personality','personality_words','personality_not','temperament','introvert','core_priority','personality_scales',
+  'self_esteem','self_strength','self_weakness','self_fears',
+  'worldview','unforgivable','moral_limits','people_values',
+  'strengths','weaknesses','fears','desires','motivation',
+  'social','friendship','behavior_close','conflict_style','leadership',
+  'intellect','thinking_style','emotions','stress_response',
+  'speech_style','humor','habits','favorites','triggers',
+  'paradoxes','inner_conflicts','perception',
+  'alone_behavior','happiest_memory','painful_memory','regrets','longing','secret','would_change',
   'bio','backstory','key_events','arc','notes'
 ];
 
