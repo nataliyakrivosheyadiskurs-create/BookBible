@@ -44,7 +44,7 @@
     </select>
     <button class="topbar-btn" onclick="showAddCharModal()"><i class="ti ti-user-plus"></i> Персонаж</button>
     <button class="topbar-btn" onclick="showView('worlds')" style="background:var(--gold)"><i class="ti ti-world"></i> Миры</button>
-    <button class="topbar-btn" onclick="exportToPDF()" style="background:#2a5c8b" title="Экспорт в PDF"><i class="ti ti-file-type-pdf"></i> PDF</button>
+    <button class="topbar-btn" onclick="showExportModal()" style="background:#2a5c8b" title="Экспорт в PDF"><i class="ti ti-file-type-pdf"></i> PDF</button>
     <button class="topbar-btn-ghost" onclick="logout()" title="Выйти"><i class="ti ti-logout"></i></button>
   </div>
 
@@ -511,6 +511,30 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="hideModal('focalModal')">Отмена</button>
       <button class="btn-save" onclick="confirmAvatar()">Сохранить аватар</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div id="exportModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'exportModal')">
+  <div class="modal" style="max-width:420px">
+    <h2>Экспорт в PDF</h2>
+    <div class="form-group">
+      <label class="form-label">Что экспортировать</label>
+      <select class="form-input" id="export-char-select">
+        <option value="all">Все персонажи</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3);margin-bottom:1rem">
+      <input type="checkbox" id="export-include-images" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+      <div>
+        <label for="export-include-images" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить изображения</label>
+        <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Каждое фото — отдельный лист на всю страницу с подписью</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('exportModal')">Отмена</button>
+      <button class="btn-save" onclick="startExport()"><i class="ti ti-file-type-pdf"></i> Создать PDF</button>
     </div>
   </div>
 </div>
