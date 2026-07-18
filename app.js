@@ -45,11 +45,18 @@ let bookFilter = '';
 async function init() {
   const { data: { session } } = await db.auth.getSession();
   if (session) showApp(); else showLoginScreen();
+
   db.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') showApp();
-    else if (event === 'SIGNED_OUT') showLoginScreen();
+    if (event === 'SIGNED_OUT') {
+      showLoginScreen();
+    } else if (event === 'SIGNED_IN' && !appLoaded) {
+      // Only load on first sign-in, not on tab refocus
+      showApp();
+    }
   });
 }
+
+let appLoaded = false;
 function showLoginScreen() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
@@ -57,7 +64,10 @@ function showLoginScreen() {
 function showApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('app').style.display = 'grid';
-  loadAndRender();
+  if (!appLoaded) {
+    appLoaded = true;
+    loadAndRender();
+  }
 }
 async function login() {
   const email = document.getElementById('login-email').value.trim();
@@ -234,7 +244,10 @@ function renderDetail() {
           <div class="book-entry-title">${b.book_title}</div>
           <div class="book-entry-role">${b.role||''}${b.age_at_events?' · '+b.age_at_events:''}</div>
         </div>
-        <button class="book-entry-del" onclick="deleteCharBook('${b.id}')"><i class="ti ti-trash"></i></button>
+        <div style="display:flex;gap:6px">
+          <button class="book-entry-del" onclick="editCharBookEntry('${b.id}')" title="Редактировать"><i class="ti ti-edit"></i></button>
+          <button class="book-entry-del" onclick="deleteCharBook('${b.id}')" title="Удалить"><i class="ti ti-trash"></i></button>
+        </div>
       </div>
       ${b.appearance_changes?`<div class="book-entry-section"><span class="book-entry-label">Изменения внешности</span><p>${b.appearance_changes}</p></div>`:''}
       ${b.personality_changes?`<div class="book-entry-section"><span class="book-entry-label">Изменения характера</span><p>${b.personality_changes}</p></div>`:''}
@@ -434,8 +447,22 @@ async function deleteChar(id) {
 function showCharBookModal(charId) {
   editingCharBookId = null;
   document.getElementById('cb-char-id').value = charId;
+  document.getElementById('charBookModalTitle').textContent = 'Добавить книгу';
   CHARBOOK_FIELDS.forEach(f => { const el = document.getElementById('cb-'+f); if(el) el.value=''; });
   document.getElementById('cb-book_order').value = getCharBooks(charId).length + 1;
+  document.getElementById('charBookModal').style.display = 'flex';
+}
+
+function editCharBookEntry(bookId) {
+  const b = charBooks.find(b => b.id === bookId);
+  if (!b) return;
+  editingCharBookId = bookId;
+  document.getElementById('cb-char-id').value = b.character_id;
+  document.getElementById('charBookModalTitle').textContent = 'Редактировать книгу';
+  CHARBOOK_FIELDS.forEach(f => {
+    const el = document.getElementById('cb-'+f);
+    if (el) el.value = b[f] || '';
+  });
   document.getElementById('charBookModal').style.display = 'flex';
 }
 async function saveCharBook() {
@@ -448,16 +475,26 @@ async function saveCharBook() {
   CHARBOOK_FIELDS.forEach(f => { const el = document.getElementById('cb-'+f); if(el) data[f] = el.value; });
   data.book_order = parseInt(data.book_order) || 1;
   try {
-    const { data: newCB, error } = await db.from('character_books').insert(data).select().single();
-    if (error) throw error;
-    charBooks.push(newCB);
-    hideModal('charBookModal');
-    if (currentChar && currentChar.id === charId) renderDetail();
-    updateBookFilter();
-    showToast('Книга добавлена');
+    if (editingCharBookId) {
+      const { error } = await db.from('character_books').update(data).eq('id', editingCharBookId);
+      if (error) throw error;
+      const idx = charBooks.findIndex(b => b.id === editingCharBookId);
+      if (idx >= 0) charBooks[idx] = { ...charBooks[idx], ...data };
+      hideModal('charBookModal');
+      if (currentChar && currentChar.id === charId) renderDetail();
+      showToast('Запись обновлена');
+    } else {
+      const { data: newCB, error } = await db.from('character_books').insert(data).select().single();
+      if (error) throw error;
+      charBooks.push(newCB);
+      hideModal('charBookModal');
+      if (currentChar && currentChar.id === charId) renderDetail();
+      updateBookFilter();
+      showToast('Книга добавлена');
+    }
   } catch(e) {
     console.error(e); showToast('Ошибка: ' + (e.message||''));
-  } finally { btn.disabled = false; }
+  } finally { btn.disabled = false; editingCharBookId = null; }
 }
 async function deleteCharBook(id) {
   if (!confirm('Удалить запись об этой книге?')) return;
