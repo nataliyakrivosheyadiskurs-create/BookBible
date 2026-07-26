@@ -365,13 +365,17 @@
 <div id="worldModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'worldModal')">
   <div class="modal modal-wide">
     <h2 id="worldModalTitle">Новый мир</h2>
-    <div class="modal-tabs">
+    <div class="modal-tabs" style="flex-wrap:wrap">
       <div class="modal-tab active" onclick="switchModalTab('wbasic',this)">Основное</div>
       <div class="modal-tab" onclick="switchModalTab('whistory',this)">История</div>
       <div class="modal-tab" onclick="switchModalTab('wmagic',this)">Магия</div>
       <div class="modal-tab" onclick="switchModalTab('wlaws',this)">Законы</div>
       <div class="modal-tab" onclick="switchModalTab('wpeople',this)">Люди</div>
-      <div class="modal-tab" onclick="switchModalTab('wsociety',this)">Общество</div>
+      <div class="modal-tab" onclick="switchModalTab('wsociety',this)">Гос-во</div>
+      <div class="modal-tab" onclick="switchModalTab('weconomy',this)">Экономика</div>
+      <div class="modal-tab" onclick="switchModalTab('wculture2',this)">Культура</div>
+      <div class="modal-tab" onclick="switchModalTab('wdaily',this)">Быт</div>
+      <div class="modal-tab" onclick="switchModalTab('wnotable',this)">Личности</div>
     </div>
 
     <div id="mtab-wbasic">
@@ -462,11 +466,244 @@
     </div>
 
     <div id="mtab-wsociety" style="display:none">
+      <div class="form-section-title">Государство</div>
+      <div class="form-group"><label class="form-label">Форма правления</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_form" placeholder="Монархия, республика, теократия..."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Кто руководит</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_ruler" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Передача власти</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_succession" placeholder="По наследству, выборы..."></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Парламент / выборы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_parliament" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Аристократия и сословия</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_aristocracy" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Титулы и государственные должности</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_titles" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Классы / сословия</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-gov_classes" placeholder=""></textarea></div>
+
+      <div class="form-section-title">Право</div>
+      <div class="form-group"><label class="form-label">Основные законы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_main" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Тяжкие преступления</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_crimes" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Полиция</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_police" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Суд</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_court" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Тюрьмы и наказания</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_prisons" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Права граждан</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_rights" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Размеры наказаний</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-law_punishment" placeholder=""></textarea></div>
+
+      <div class="form-section-title">Армия</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Обязательная служба</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_service" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Воинские звания</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_ranks" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Рода войск</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_branches" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Самое мощное оружие</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_weapons" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Известные полководцы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_commanders" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Военные академии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-army_academies" placeholder=""></textarea></div>
+      </div>
+
+      <div class="form-section-title">Общество</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Роль мужчин</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_men" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Роль женщин</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_women" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Роль детей</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_children" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Семья и брак</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_family" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Наследование</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_inheritance" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Брак</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_marriage" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Отношение к бедным</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_poor" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Отношение к богатым</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-soc_rich" placeholder=""></textarea></div>
+      </div>
       <div class="form-group"><label class="form-label">Политика</label><textarea class="form-input form-textarea" id="w-politics" placeholder=""></textarea></div>
       <div class="form-group"><label class="form-label">Религия</label><textarea class="form-input form-textarea" id="w-religion" placeholder=""></textarea></div>
-      <div class="form-group"><label class="form-label">Технологии</label><textarea class="form-input form-textarea" id="w-technology" placeholder=""></textarea></div>
-      <div class="form-group"><label class="form-label">Культура</label><textarea class="form-input form-textarea" id="w-culture" placeholder=""></textarea></div>
       <div class="form-group"><label class="form-label">Главные конфликты</label><textarea class="form-input form-textarea" id="w-conflicts" placeholder=""></textarea></div>
+    </div>
+
+    <!-- ECONOMY & TECH -->
+    <div id="mtab-weconomy" style="display:none">
+      <div class="form-section-title">Экономика</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Основная валюта</label><input type="text" class="form-input" id="w-econ_currency" placeholder="Золотые талеры, медные гроши..."></div>
+        <div class="form-group"><label class="form-label">Доход среднего человека</label><input type="text" class="form-input" id="w-econ_income" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Налоги</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-econ_taxes" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Основные отрасли</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-econ_industries" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Торговля (импорт/экспорт)</label><textarea class="form-input form-textarea" id="w-econ_trade" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Богатейшие города/регионы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-econ_rich" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Беднейшие регионы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-econ_poor" placeholder=""></textarea></div>
+      </div>
+
+      <div class="form-section-title">Технологии</div>
+      <div class="form-group"><label class="form-label">Общий уровень технологий</label><textarea class="form-input form-textarea" id="w-tech_level" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Открытия, изменившие мир</label><textarea class="form-input form-textarea" id="w-tech_discoveries" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Источники энергии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_energy" placeholder="Уголь, пар, магия..."></textarea></div>
+        <div class="form-group"><label class="form-label">Транспорт</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_transport" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Связь</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_communication" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Медицина</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_medicine" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Оружие</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_weapons" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Строительство</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-tech_construction" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Технологии (общее)</label><textarea class="form-input form-textarea" id="w-technology" placeholder=""></textarea></div>
+    </div>
+
+    <!-- CULTURE, EDUCATION, MEDIA, LANGUAGE -->
+    <div id="mtab-wculture2" style="display:none">
+      <div class="form-section-title">Культура</div>
+      <div class="form-group"><label class="form-label">Праздники</label><textarea class="form-input form-textarea" id="w-cult_holidays" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Музыка</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_music" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Театр</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_theatre" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Литература</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_literature" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Архитектура</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_architecture" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Мода и причёски</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_fashion" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Национальные символы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-cult_symbols" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Культура (общее)</label><textarea class="form-input form-textarea" id="w-culture" placeholder=""></textarea></div>
+
+      <div class="form-section-title">Образование</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Школы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-edu_schools" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Университеты и академии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-edu_universities" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Кто может учиться</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-edu_who_can" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Грамотность населения</label><input type="text" class="form-input" id="w-edu_literacy" placeholder="~40%..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Престижные профессии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-edu_prestigious" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Предметы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-edu_subjects" placeholder=""></textarea></div>
+      </div>
+
+      <div class="form-section-title">СМИ</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Газеты и типографии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-media_newspapers" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Книги</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-media_books" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Почта и курьеры</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-media_post" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Телеграф / радио</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-media_telegraph" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Кто распространяет новости</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-media_news" placeholder=""></textarea></div>
+
+      <div class="form-section-title">Язык</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Государственный язык и алфавит</label><input type="text" class="form-input" id="w-lang_state" placeholder=""></div>
+        <div class="form-group"><label class="form-label">Диалекты</label><input type="text" class="form-input" id="w-lang_dialects" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Пословицы и идиомы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-lang_proverbs" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Сленг и ругательства</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-lang_slang" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Алфавит (подробно)</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-lang_alphabet" placeholder=""></textarea></div>
+    </div>
+
+    <!-- DAILY LIFE -->
+    <div id="mtab-wdaily" style="display:none">
+      <div class="form-section-title">Медицина</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Кто лечит людей</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-med_healers" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Распространённые болезни</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-med_diseases" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Смертельные болезни</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-med_deadly" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Хирургия и анестезия</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-med_surgery" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Лекарственные растения</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-med_herbs" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Продолжительность жизни</label><input type="text" class="form-input" id="w-med_lifespan" placeholder=""></div>
+      </div>
+
+      <div class="form-section-title">Быт</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Что едят</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-life_food" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Что пьют</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-life_drinks" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Как готовят</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-life_cooking" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Типичный завтрак</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-life_breakfast" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Типичный обед/ужин</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-life_dinner" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Жильё (строительство, освещение, отопление)</label><textarea class="form-input form-textarea" id="w-life_housing" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Освещение</label><input type="text" class="form-input" id="w-life_lighting" placeholder="Масляные лампы, газовые фонари..."></div>
+        <div class="form-group"><label class="form-label">Водоснабжение</label><input type="text" class="form-input" id="w-life_water" placeholder=""></div>
+      </div>
+      <div class="form-group"><label class="form-label">Отопление</label><input type="text" class="form-input" id="w-life_heating" placeholder=""></div>
+
+      <div class="form-section-title">Транспорт</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Дороги</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-trans_roads" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Железные дороги</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-trans_railways" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Корабли</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-trans_ships" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Воздушный транспорт</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-trans_air" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Скорость путешествий</label><input type="text" class="form-input" id="w-trans_speed" placeholder=""></div>
+        <div class="form-group"><label class="form-label">Стоимость поездок</label><input type="text" class="form-input" id="w-trans_cost" placeholder=""></div>
+      </div>
+
+      <div class="form-section-title">Повседневная жизнь</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Рабочий день</label><input type="text" class="form-input" id="w-daily_workday" placeholder="С 7 до 19..."></div>
+        <div class="form-group"><label class="form-label">Количество рабочих часов</label><input type="text" class="form-input" id="w-daily_hours" placeholder="12 часов в день..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Выходные и отпуска</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-daily_weekends" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Вечерний досуг</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-daily_evening" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Развлечения</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-daily_entertainment" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Спорт и азартные игры</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-daily_sports" placeholder=""></textarea></div>
+      </div>
+    </div>
+
+    <!-- NOTABLE PEOPLE & ORGS -->
+    <div id="mtab-wnotable" style="display:none">
+      <div class="form-section-title">Знаковые личности</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Величайшие учёные</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-notable_scientists" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Полководцы</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-notable_commanders" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Художники и изобретатели</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-notable_artists" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Известные преступники</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-notable_criminals" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Герои мира</label><textarea class="form-input form-textarea" id="w-notable_heroes" placeholder=""></textarea></div>
+
+      <div class="form-section-title">Главные организации</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Гильдии</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-orgs_guilds" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Тайные общества</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-orgs_secret" placeholder=""></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Военные организации</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-orgs_military" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Банки и корпорации</label><textarea class="form-input form-textarea" style="min-height:60px" id="w-orgs_banks" placeholder=""></textarea></div>
+      </div>
+
+      <div class="form-section-title">Прочее</div>
       <div class="form-group"><label class="form-label">География</label><textarea class="form-input form-textarea" id="w-geography" placeholder=""></textarea></div>
       <div class="form-group"><label class="form-label">Заметки автора</label><textarea class="form-input form-textarea" id="w-notes" placeholder=""></textarea></div>
     </div>
