@@ -11,7 +11,7 @@ const COLORS = ['#8b3a1a','#2a5c8b','#2a8b4a','#8b2a7a','#8b7a2a','#2a7a8b','#6b
 const EMOTIONS = ['Нейтральное','Радость','Гнев','Грусть','Страх','Удивление','Решимость'];
 
 const CHAR_FIELDS = [
-  'name','nickname','role','gender','birth_date','death_date','book','emoji','tags','avatar_image_id','avatar_position',
+  'name','nickname','role','gender','birth_date','death_date','book','emoji','tags','avatar_image_id','avatar_position','family','char_type','generation',
   'appearance','height','body_type','hair','eyes','skin','distinctive_marks','style','voice',
   'build_strength','posture','handedness','gait','mannerisms',
   'face_shape','forehead','cheekbones','chin','jaw',
@@ -36,6 +36,9 @@ const WORLD_FIELDS = ['name','genre','summary','history','geography','magic_syst
 const CHARBOOK_FIELDS = ['book_title','book_order','role','age_at_events','appearance_changes','personality_changes','arc','key_events','relationships_changes','notes'];
 
 let chars = [], images = [], relationships = [], worlds = [], charBooks = [];
+let charTypeFilter = 'all'; // all | main | secondary
+let familyFilter = '';
+let editingRelId = null;
 let currentChar = null, currentWorld = null;
 let currentRelCharId = null;
 let editingCharId = null, editingWorldId = null, editingCharBookId = null;
@@ -151,6 +154,13 @@ function updateBookFilter() {
   const cur = sel.value;
   sel.innerHTML = '<option value="">Все книги</option>' + allBooks.map(b=>`<option value="${b}">${b}</option>`).join('');
   sel.value = allBooks.includes(cur) ? cur : '';
+
+  // Update families
+  const families = [...new Set(chars.map(c=>c.family).filter(Boolean))].sort();
+  const famSel = document.getElementById('familyFilter');
+  if (famSel) {
+    famSel.innerHTML = '<option value="">Все семьи</option>' + families.map(f=>`<option value="${f}">${f}</option>`).join('');
+  }
 }
 function filterByBook(v) { bookFilter = v; filterChars(); }
 function filterChars() {
@@ -163,8 +173,31 @@ function filterChars() {
       return inMain || inBooks;
     });
   }
-  if (q) list = list.filter(c => c.name.toLowerCase().includes(q) || (c.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  if (charTypeFilter !== 'all') {
+    list = list.filter(c => (c.char_type || 'main') === charTypeFilter);
+  }
+  if (familyFilter) {
+    list = list.filter(c => c.family === familyFilter);
+  }
+  if (q) list = list.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.tags||[]).some(t=>t.toLowerCase().includes(q)) ||
+    (c.family||'').toLowerCase().includes(q)
+  );
   renderGrid(list);
+}
+
+function setCharTypeFilter(type) {
+  charTypeFilter = type;
+  document.querySelectorAll('.type-filter-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`.type-filter-btn[data-type="${type}"]`);
+  if (btn) btn.classList.add('active');
+  filterChars();
+}
+
+function setFamilyFilter(val) {
+  familyFilter = val;
+  filterChars();
 }
 
 // ── GRID ──
@@ -185,11 +218,16 @@ function renderGrid(list) {
     const posMap = { top: '50% 15%', center: '50% 50%', bottom: '50% 85%' };
     const objPos = posMap[avatarPos] || '50% 15%';
     const bookBadges = cBooks.map(b => `<span class="book-badge">${b.book_title}</span>`).join('');
-    return `<div class="char-card" onclick="openChar('${c.id}')">
+    const isSecondary = (c.char_type || 'main') === 'secondary';
+    return `<div class="char-card ${isSecondary ? 'char-card-secondary' : ''}" onclick="openChar('${c.id}')">
+      ${isSecondary ? '<div class="secondary-badge">Второстепенный</div>' : ''}
       ${mainImg ? `<img class="char-card-img" src="${mainImg.url}" alt="${c.name}" style="object-position:${objPos}">` : `<div class="char-card-img-placeholder" style="background:${colorFor(c)}15">${c.emoji||'👤'}</div>`}
       <div class="char-card-body">
         <div class="char-card-name">${c.name}</div>
-        <div class="char-card-role">${c.role||''}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="char-card-role">${c.role||''}</div>
+          ${c.family ? `<span class="family-badge">${c.family}</span>` : ''}
+        </div>
         ${bookBadges ? `<div class="book-badges">${bookBadges}</div>` : ''}
         ${c.bio?`<div class="char-card-excerpt">${c.bio}</div>`:''}
         ${(c.tags||[]).length?`<div class="char-card-tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
@@ -229,10 +267,32 @@ function renderDetail() {
 
   const relsHtml = rels.length
     ? rels.map(r=>{const t=getChar(r.target_id);if(!t)return '';
-        return `<div class="rel-item" onclick="openChar('${t.id}')">
-          <div class="rel-avatar" style="background:${colorFor(t)}22;color:${colorFor(t)}">${t.emoji||initials(t.name)}</div>
-          <div class="rel-info"><div class="rel-name">${t.name}</div><div class="rel-type-text">${r.description||''}</div></div>
-          <span class="rel-badge" style="background:${col}18;color:${col}">${r.type}</span>
+        const intensityColor = {
+          'враждебные':'#c0392b','напряжённые':'#e67e22','нейтральные':'#8a7a6e',
+          'тёплые':'#27ae60','близкие':'#2980b9','преданные':'#8b3a1a'
+        }[r.intensity||'нейтральные'] || '#8a7a6e';
+        return `<div class="rel-item-v2">
+          <div class="rel-item-header">
+            <div class="rel-avatar" style="background:${colorFor(t)}22;color:${colorFor(t)};cursor:pointer" onclick="openChar('${t.id}')">${t.emoji||initials(t.name)}</div>
+            <div class="rel-info" style="cursor:pointer" onclick="openChar('${t.id}')">
+              <div class="rel-name">${t.name}${t.family?` <span style="font-size:11px;color:var(--ink3)">${t.family}</span>`:''}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+                <span class="rel-badge" style="background:${col}18;color:${col}">${r.type}</span>
+                <span style="font-size:11px;color:${intensityColor};font-weight:500">${r.intensity||''}</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0">
+              <button onclick="editRel('${r.id}')" style="background:none;border:0.5px solid var(--parch3);color:var(--ink3);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px"><i class="ti ti-edit"></i></button>
+              <button onclick="deleteRel('${r.id}')" style="background:none;border:0.5px solid var(--parch3);color:var(--ink3);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:12px"><i class="ti ti-trash"></i></button>
+            </div>
+          </div>
+          ${r.description ? `<div class="rel-detail-row"><span class="rel-detail-label">Описание</span><span>${r.description}</span></div>` : ''}
+          ${r.how_they_met ? `<div class="rel-detail-row"><span class="rel-detail-label">Как познакомились</span><span>${r.how_they_met}</span></div>` : ''}
+          ${r.dynamic ? `<div class="rel-detail-row"><span class="rel-detail-label">Динамика</span><span>${r.dynamic}</span></div>` : ''}
+          ${r.conflicts ? `<div class="rel-detail-row"><span class="rel-detail-label">Конфликты</span><span>${r.conflicts}</span></div>` : ''}
+          ${r.secrets ? `<div class="rel-detail-row"><span class="rel-detail-label">Тайны / что скрывают</span><span>${r.secrets}</span></div>` : ''}
+          ${r.current_status ? `<div class="rel-detail-row"><span class="rel-detail-label">Текущий статус</span><span>${r.current_status}</span></div>` : ''}
+          ${r.history ? `<div class="rel-detail-row"><span class="rel-detail-label">История отношений</span><span>${r.history}</span></div>` : ''}
         </div>`;}).join('')
     : `<div style="color:var(--ink3);font-size:13px;padding:.5rem 0">Связей пока нет</div>`;
 
@@ -391,6 +451,13 @@ function editChar(id) {
   editingCharId = id;
   document.getElementById('charModalTitle').textContent = 'Редактировать персонажа';
   CHAR_FIELDS.forEach(f => {
+    if (f === 'char_type') {
+      const val = c[f] || 'main';
+      const radio = document.querySelector(`input[name="char_type"][value="${val}"]`);
+      if (radio) radio.checked = true;
+      return;
+    }
+    if (f === 'avatar_image_id' || f === 'avatar_position') return;
     const el = document.getElementById('f-'+f); if(!el) return;
     el.value = f === 'tags' ? (c.tags||[]).join(', ') : (c[f]||'');
   });
@@ -404,6 +471,12 @@ async function saveChar() {
   btn.disabled = true; document.getElementById('saveBtnText').textContent = 'Сохранение...';
   const data = {};
   CHAR_FIELDS.forEach(f => {
+    if (f === 'char_type') {
+      const radio = document.querySelector('input[name="char_type"]:checked');
+      data[f] = radio ? radio.value : 'main';
+      return;
+    }
+    if (f === 'avatar_image_id' || f === 'avatar_position') return; // handled separately
     const el = document.getElementById('f-'+f); if(!el) return;
     data[f] = f === 'tags' ? el.value.split(',').map(t=>t.trim()).filter(Boolean) : el.value;
   });
@@ -711,21 +784,79 @@ async function deleteImage(imgId,charId) {
 
 // ── RELATIONSHIPS ──
 function showRelModal(charId) {
-  currentRelCharId=charId;
-  document.getElementById('rel-target').innerHTML=chars.filter(c=>c.id!==charId).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  document.getElementById('rel-desc').value='';
+  editingRelId = null;
+  currentRelCharId = charId;
+  document.getElementById('relModalTitle').textContent = 'Добавить связь';
+  document.getElementById('rel-target').innerHTML = chars.filter(c=>c.id!==charId).map(c=>`<option value="${c.id}">${c.emoji||''} ${c.name}</option>`).join('');
+  ['rel-desc','rel-dynamic','rel-history','rel-conflicts','rel-secrets','rel-how_they_met','rel-current_status'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('rel-type').value = 'Друзья';
+  document.getElementById('rel-intensity').value = 'нейтральные';
+  document.getElementById('relModal').style.display='flex';
+}
+
+function editRel(relId) {
+  const r = relationships.find(r=>r.id===relId);
+  if (!r) return;
+  editingRelId = relId;
+  currentRelCharId = r.character_id;
+  document.getElementById('relModalTitle').textContent = 'Редактировать связь';
+  document.getElementById('rel-target').innerHTML = chars.filter(c=>c.id!==r.character_id).map(c=>`<option value="${c.id}">${c.emoji||''} ${c.name}</option>`).join('');
+  document.getElementById('rel-target').value = r.target_id;
+  document.getElementById('rel-type').value = r.type || 'Друзья';
+  document.getElementById('rel-intensity').value = r.intensity || 'нейтральные';
+  document.getElementById('rel-desc').value = r.description || '';
+  document.getElementById('rel-dynamic').value = r.dynamic || '';
+  document.getElementById('rel-history').value = r.history || '';
+  document.getElementById('rel-conflicts').value = r.conflicts || '';
+  document.getElementById('rel-secrets').value = r.secrets || '';
+  document.getElementById('rel-how_they_met').value = r.how_they_met || '';
+  document.getElementById('rel-current_status').value = r.current_status || '';
   document.getElementById('relModal').style.display='flex';
 }
 async function saveRel() {
-  const targetId=document.getElementById('rel-target').value;
-  const type=document.getElementById('rel-type').value;
-  const description=document.getElementById('rel-desc').value;
+  const targetId = document.getElementById('rel-target').value;
+  const data = {
+    character_id: currentRelCharId,
+    target_id: targetId,
+    type: document.getElementById('rel-type').value,
+    intensity: document.getElementById('rel-intensity').value,
+    description: document.getElementById('rel-desc').value,
+    dynamic: document.getElementById('rel-dynamic').value,
+    history: document.getElementById('rel-history').value,
+    conflicts: document.getElementById('rel-conflicts').value,
+    secrets: document.getElementById('rel-secrets').value,
+    how_they_met: document.getElementById('rel-how_they_met').value,
+    current_status: document.getElementById('rel-current_status').value,
+  };
   try {
-    const {data:newRel,error}=await db.from('relationships').insert({character_id:currentRelCharId,target_id:targetId,type,description}).select().single();
-    if(error) throw error;
-    relationships.push(newRel); hideModal('relModal');
-    if(currentChar) renderDetail(); showToast('Связь добавлена');
-  } catch(e){showToast('Ошибка');}
+    if (editingRelId) {
+      const { error } = await db.from('relationships').update(data).eq('id', editingRelId);
+      if (error) throw error;
+      const idx = relationships.findIndex(r=>r.id===editingRelId);
+      if (idx>=0) relationships[idx] = { ...relationships[idx], ...data };
+      showToast('Связь обновлена');
+    } else {
+      const { data: newRel, error } = await db.from('relationships').insert(data).select().single();
+      if (error) throw error;
+      relationships.push(newRel);
+      showToast('Связь добавлена');
+    }
+    editingRelId = null;
+    hideModal('relModal');
+    if (currentChar) renderDetail();
+  } catch(e) { console.error(e); showToast('Ошибка: '+(e.message||'')); }
+}
+
+async function deleteRel(relId) {
+  if (!confirm('Удалить эту связь?')) return;
+  try {
+    await db.from('relationships').delete().eq('id', relId);
+    relationships = relationships.filter(r=>r.id!==relId);
+    if (currentChar) renderDetail();
+    showToast('Связь удалена');
+  } catch(e) { showToast('Ошибка'); }
 }
 
 // ── RELATIONS MAP ──
