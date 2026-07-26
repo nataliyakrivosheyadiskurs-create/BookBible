@@ -251,12 +251,11 @@ function renderGrid(list) {
       ${mainImg ? `<img class="char-card-img" src="${mainImg.url}" alt="${c.name}" style="object-position:${objPos}">` : `<div class="char-card-img-placeholder" style="background:${colorFor(c)}15">${c.emoji||'👤'}</div>`}
       <div class="char-card-body">
         <div class="char-card-name">${c.name}</div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <div class="char-card-role">${c.role||''}</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
           ${c.family ? `<span class="family-badge">${c.family}</span>` : ''}
         </div>
-        ${bookBadges ? `<div class="book-badges">${bookBadges}</div>` : ''}
-        ${c.bio?`<div class="char-card-excerpt">${c.bio}</div>`:''}
+        ${buildBookRolesHTML(c, cBooks)}
+        ${c.bio?`<div class="char-card-excerpt" style="margin-top:8px">${c.bio}</div>`:''}
         ${(c.tags||[]).length?`<div class="char-card-tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
       </div>
       <div class="char-card-footer">
@@ -1270,6 +1269,57 @@ async function deleteCity(id) {
     renderWorldDetail();
     showToast('Город удалён');
   } catch(e) { showToast('Ошибка'); }
+}
+
+function buildBookRolesHTML(c, cBooks) {
+  const roleColor = {
+    'Главный герой':    '#8b3a1a',
+    'Антагонист':       '#8b2a7a',
+    'Любовный интерес': '#c0392b',
+    'Наставник':        '#2a7a8b',
+    'Союзник':          '#2a8b4a',
+    'Второстепенный':   '#8a7a6e',
+    'Другое':           '#8a7a6e',
+  };
+
+  // Collect all book appearances
+  const appearances = [];
+
+  // Main book from character card
+  if (c.book && c.role) {
+    appearances.push({ book: c.book, role: c.role, order: 999 });
+  } else if (c.book) {
+    appearances.push({ book: c.book, role: 'Второстепенный', order: 999 });
+  }
+
+  // From character_books table (overrides main if same book title)
+  cBooks.forEach(b => {
+    const existing = appearances.findIndex(a => a.book === b.book_title);
+    if (existing >= 0) {
+      appearances[existing] = { book: b.book_title, role: b.role || appearances[existing].role, order: b.book_order || 999 };
+    } else {
+      appearances.push({ book: b.book_title, role: b.role || 'Второстепенный', order: b.book_order || 999 });
+    }
+  });
+
+  // Sort by order
+  appearances.sort((a, b) => a.order - b.order);
+
+  if (!appearances.length) return '';
+
+  return `<div class="book-roles-list">${appearances.map(a => {
+    const col = roleColor[a.role] || '#8a7a6e';
+    const icon = a.role === 'Главный герой' ? '★' :
+                 a.role === 'Антагонист' ? '⚔' :
+                 a.role === 'Любовный интерес' ? '♡' :
+                 a.role === 'Наставник' ? '◆' :
+                 a.role === 'Союзник' ? '◇' : '·';
+    return `<div class="book-role-row">
+      <span class="book-role-icon" style="color:${col}">${icon}</span>
+      <span class="book-role-name">${a.book}</span>
+      <span class="book-role-label" style="color:${col}">${a.role}</span>
+    </div>`;
+  }).join('')}</div>`;
 }
 
 init();
