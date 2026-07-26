@@ -365,39 +365,181 @@
 <div id="worldModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'worldModal')">
   <div class="modal modal-wide">
     <h2 id="worldModalTitle">Новый мир</h2>
-
     <div class="modal-tabs">
       <div class="modal-tab active" onclick="switchModalTab('wbasic',this)">Основное</div>
-      <div class="modal-tab" onclick="switchModalTab('wlore',this)">Лор</div>
+      <div class="modal-tab" onclick="switchModalTab('whistory',this)">История</div>
+      <div class="modal-tab" onclick="switchModalTab('wmagic',this)">Магия</div>
+      <div class="modal-tab" onclick="switchModalTab('wlaws',this)">Законы</div>
+      <div class="modal-tab" onclick="switchModalTab('wpeople',this)">Люди</div>
       <div class="modal-tab" onclick="switchModalTab('wsociety',this)">Общество</div>
     </div>
 
     <div id="mtab-wbasic">
       <div class="form-row">
         <div class="form-group"><label class="form-label">Название мира *</label><input type="text" class="form-input" id="w-name" placeholder="Алем, Средиземье..."></div>
-        <div class="form-group"><label class="form-label">Жанр</label><input type="text" class="form-input" id="w-genre" placeholder="Фэнтези, sci-fi, исторический..."></div>
+        <div class="form-group"><label class="form-label">Девиз мира</label><input type="text" class="form-input" id="w-world_motto" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Жанр</label><input type="text" class="form-input" id="w-genre" placeholder="Фэнтези, sci-fi..."></div>
+        <div class="form-group"><label class="form-label">Поджанры</label><input type="text" class="form-input" id="w-subgenres" placeholder="Стимпанк, городское фэнтези..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Основное настроение</label><input type="text" class="form-input" id="w-mood" placeholder="Мрачное, атмосферное..."></div>
+        <div class="form-group"><label class="form-label">Откуда название мира</label><input type="text" class="form-input" id="w-world_origin" placeholder="Происхождение названия..."></div>
       </div>
       <div class="form-group"><label class="form-label">Краткое описание</label><textarea class="form-input form-textarea" id="w-summary" placeholder="Несколько предложений об этом мире..."></textarea></div>
-      <div class="form-group"><label class="form-label">История мира / хронология</label><textarea class="form-input form-textarea" style="min-height:120px" id="w-history" placeholder="Как возник мир, ключевые исторические события, эпохи..."></textarea></div>
+      <div class="form-group"><label class="form-label">Основные темы произведения</label><textarea class="form-input form-textarea" id="w-main_themes" placeholder="Власть и коррупция, верность, цена прогресса..."></textarea></div>
+      <div class="form-group"><label class="form-label">Центральная идея мира</label><textarea class="form-input form-textarea" id="w-central_idea" placeholder="Главная мысль, которую несёт этот мир..."></textarea></div>
+      <div class="form-group"><label class="form-label">Уникальная особенность</label><textarea class="form-input form-textarea" id="w-unique_feature" placeholder="Что делает этот мир особенным..."></textarea></div>
+      <div class="form-group"><label class="form-label">Чем отличается от типичного фэнтези</label><textarea class="form-input form-textarea" id="w-differs_from_typical" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Что в мире считается невозможным</label><textarea class="form-input form-textarea" id="w-what_is_impossible" placeholder=""></textarea></div>
     </div>
 
-    <div id="mtab-wlore" style="display:none">
-      <div class="form-group"><label class="form-label">География</label><textarea class="form-input form-textarea" id="w-geography" placeholder="Континенты, страны, важные места, климат..."></textarea></div>
-      <div class="form-group"><label class="form-label">Магическая система / сверхъестественное</label><textarea class="form-input form-textarea" id="w-magic_system" placeholder="Как работает магия, откуда берётся, кто может использовать, ограничения..."></textarea></div>
-      <div class="form-group"><label class="form-label">Технологии и уровень развития</label><textarea class="form-input form-textarea" id="w-technology" placeholder="Что есть в этом мире, что отсутствует..."></textarea></div>
+    <div id="mtab-whistory" style="display:none">
+      <div class="form-group"><label class="form-label">Как появился мир / кто создал</label><textarea class="form-input form-textarea" id="w-world_creation" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Легенды о создании</label><textarea class="form-input form-textarea" id="w-creation_legends" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Что известно историкам</label><textarea class="form-input form-textarea" id="w-historians_knowledge" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Мифы vs. правда</label><textarea class="form-input form-textarea" id="w-myths_vs_truth" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Эпохи (названия и чем каждая закончилась)</label><textarea class="form-input form-textarea" style="min-height:100px" id="w-epochs" placeholder="Эпоха Основания → закончилась Великим Расколом..."></textarea></div>
+      <div class="form-group"><label class="form-label">История мира (общее)</label><textarea class="form-input form-textarea" style="min-height:100px" id="w-history" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Важнейшие исторические события</label><textarea class="form-input form-textarea" id="w-important_events" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Разрушительные войны</label><textarea class="form-input form-textarea" id="w-destructive_wars" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Катастрофы</label><textarea class="form-input form-textarea" id="w-disasters" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Важные открытия</label><textarea class="form-input form-textarea" id="w-important_discoveries" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Начало современной эпохи</label><input type="text" class="form-input" id="w-modern_era_start" placeholder="год 1200..."></div>
+        <div class="form-group"><label class="form-label">События «до» и «после»</label><input type="text" class="form-input" id="w-before_after_events" placeholder=""></div>
+      </div>
+      <div class="form-group"><label class="form-label">Хронология (таблица событий)</label><textarea class="form-input form-textarea" style="min-height:120px" id="w-chronology" placeholder="год 1 — основание Первого Королевства&#10;год 340 — Великая война..."></textarea></div>
+    </div>
+
+    <div id="mtab-wmagic" style="display:none">
+      <div class="form-group"><label class="form-label">Что считается магией</label><textarea class="form-input form-textarea" id="w-magic_definition" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Источник магии</label><textarea class="form-input form-textarea" id="w-magic_source" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Кто может использовать</label><textarea class="form-input form-textarea" id="w-magic_who_can" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Кто не может</label><textarea class="form-input form-textarea" id="w-magic_who_cannot" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Как появляется способность</label><textarea class="form-input form-textarea" id="w-magic_how_appears" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Можно ли потерять способность</label><textarea class="form-input form-textarea" id="w-magic_can_lose" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Можно ли обучиться</label><textarea class="form-input form-textarea" id="w-magic_can_learn" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Ограничения</label><textarea class="form-input form-textarea" id="w-magic_limits" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Цена использования</label><textarea class="form-input form-textarea" id="w-magic_cost" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Школы магии</label><textarea class="form-input form-textarea" id="w-magic_schools" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Как магия влияет на общество</label><textarea class="form-input form-textarea" id="w-magic_society_impact" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Запретные виды магии</label><textarea class="form-input form-textarea" id="w-magic_forbidden" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Кто контролирует использование</label><textarea class="form-input form-textarea" id="w-magic_control" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Магическая система (итоговое описание)</label><textarea class="form-input form-textarea" id="w-magic_system" placeholder=""></textarea></div>
+    </div>
+
+    <div id="mtab-wlaws" style="display:none">
+      <div class="form-group"><label class="form-label">Физические законы, которые отличаются от нашего мира</label><textarea class="form-input form-textarea" id="w-physical_laws" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Бессмертие — существует ли</label><textarea class="form-input form-textarea" id="w-immortality" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Воскрешение — возможно ли</label><textarea class="form-input form-textarea" id="w-resurrection" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Душа — есть ли, что происходит после смерти</label><textarea class="form-input form-textarea" id="w-soul" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Призраки — существуют ли</label><textarea class="form-input form-textarea" id="w-ghosts" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Путешествия во времени</label><textarea class="form-input form-textarea" id="w-time_travel" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Судьба — существует ли, можно ли изменить</label><textarea class="form-input form-textarea" id="w-fate" placeholder=""></textarea></div>
+    </div>
+
+    <div id="mtab-wpeople" style="display:none">
+      <div class="form-group"><label class="form-label">Основные народы и этнические группы</label><textarea class="form-input form-textarea" id="w-peoples" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Внешние отличия народов</label><textarea class="form-input form-textarea" id="w-appearance_differences" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Типичные имена</label><textarea class="form-input form-textarea" id="w-typical_names" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Языки и диалекты</label><textarea class="form-input form-textarea" id="w-languages" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Продолжительность жизни</label><input type="text" class="form-input" id="w-lifespan" placeholder="70-80 лет, маги живут до 200..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Стандарты красоты</label><textarea class="form-input form-textarea" id="w-beauty_standards" placeholder="Что считается красивым / уродством..."></textarea></div>
     </div>
 
     <div id="mtab-wsociety" style="display:none">
-      <div class="form-group"><label class="form-label">Политическое устройство</label><textarea class="form-input form-textarea" id="w-politics" placeholder="Кто правит, как устроена власть, конфликты между государствами..."></textarea></div>
-      <div class="form-group"><label class="form-label">Религия и верования</label><textarea class="form-input form-textarea" id="w-religion" placeholder="Боги, культы, как религия влияет на жизнь..."></textarea></div>
-      <div class="form-group"><label class="form-label">Культура и быт</label><textarea class="form-input form-textarea" id="w-culture" placeholder="Традиции, праздники, социальные нормы..."></textarea></div>
-      <div class="form-group"><label class="form-label">Главные конфликты</label><textarea class="form-input form-textarea" id="w-conflicts" placeholder="Войны, противостояния, напряжённые точки..."></textarea></div>
-      <div class="form-group"><label class="form-label">Заметки автора</label><textarea class="form-input form-textarea" id="w-notes" placeholder="Идеи, вопросы, детали для проработки..."></textarea></div>
+      <div class="form-group"><label class="form-label">Политика</label><textarea class="form-input form-textarea" id="w-politics" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Религия</label><textarea class="form-input form-textarea" id="w-religion" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Технологии</label><textarea class="form-input form-textarea" id="w-technology" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Культура</label><textarea class="form-input form-textarea" id="w-culture" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Главные конфликты</label><textarea class="form-input form-textarea" id="w-conflicts" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">География</label><textarea class="form-input form-textarea" id="w-geography" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Заметки автора</label><textarea class="form-input form-textarea" id="w-notes" placeholder=""></textarea></div>
     </div>
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="hideModal('worldModal')">Отмена</button>
       <button class="btn-save" id="saveWorldBtn" onclick="saveWorld()"><span id="saveWorldBtnText">Сохранить</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CITY MODAL ══ -->
+<div id="cityModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'cityModal')">
+  <div class="modal modal-wide">
+    <h2 id="cityModalTitle">Новый город</h2>
+    <input type="hidden" id="city-world-id">
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchModalTab('citybasic',this)">Основное</div>
+      <div class="modal-tab" onclick="switchModalTab('cityhistory',this)">История</div>
+      <div class="modal-tab" onclick="switchModalTab('citylife',this)">Жизнь</div>
+      <div class="modal-tab" onclick="switchModalTab('citymood',this)">Атмосфера</div>
+    </div>
+    <div id="mtab-citybasic">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Название *</label><input type="text" class="form-input" id="city-name" placeholder=""></div>
+        <div class="form-group"><label class="form-label">Откуда название</label><input type="text" class="form-input" id="city-name_origin" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Основан (дата)</label><input type="text" class="form-input" id="city-founded" placeholder="год 240..."></div>
+        <div class="form-group"><label class="form-label">Регион</label><input type="text" class="form-input" id="city-region" placeholder="Северное побережье..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Девиз</label><input type="text" class="form-input" id="city-motto" placeholder=""></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Население</label><input type="text" class="form-input" id="city-population" placeholder="~500 000 человек"></div>
+        <div class="form-group"><label class="form-label">Площадь</label><input type="text" class="form-input" id="city-area" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Языки</label><input type="text" class="form-input" id="city-languages" placeholder=""></div>
+        <div class="form-group"><label class="form-label">Грамотность</label><input type="text" class="form-input" id="city-literacy" placeholder="около 60%..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Планировка районов</label><textarea class="form-input form-textarea" id="city-layout" placeholder="Старый город, промышленная зона, богатые кварталы..."></textarea></div>
+      <div class="form-group"><label class="form-label">Архитектура</label><textarea class="form-input form-textarea" id="city-architecture" placeholder="Стиль, высота домов, материалы, цвет..."></textarea></div>
+      <div class="form-group"><label class="form-label">Достопримечательности и памятники</label><textarea class="form-input form-textarea" id="city-landmarks" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Экономика</label><textarea class="form-input form-textarea" id="city-economy" placeholder="Главная отрасль, предприятия, рынки..."></textarea></div>
+      <div class="form-group"><label class="form-label">Власть</label><textarea class="form-input form-textarea" id="city-government" placeholder="Мэр, совет, полиция, суд..."></textarea></div>
+    </div>
+    <div id="mtab-cityhistory" style="display:none">
+      <div class="form-group"><label class="form-label">История города</label><textarea class="form-input form-textarea" style="min-height:120px" id="city-city_history" placeholder="Кто основал, почему именно здесь, главные события..."></textarea></div>
+      <div class="form-group"><label class="form-label">Ключевые события (войны, катастрофы, перестройки)</label><textarea class="form-input form-textarea" id="city-city_events" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Самые известные жители</label><textarea class="form-input form-textarea" id="city-famous_residents" placeholder=""></textarea></div>
+    </div>
+    <div id="mtab-citylife" style="display:none">
+      <div class="form-group"><label class="form-label">Повседневная жизнь</label><textarea class="form-input form-textarea" id="city-daily_life" placeholder="Во сколько просыпается город, чем занимаются, как проводят выходные..."></textarea></div>
+      <div class="form-group"><label class="form-label">Запахи города</label><textarea class="form-input form-textarea" id="city-smells" placeholder="Уголь, выпечка, море, нечистоты..."></textarea></div>
+      <div class="form-group"><label class="form-label">Звуки (утром, ночью)</label><textarea class="form-input form-textarea" id="city-sounds" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Еда / что продают на улицах</label><textarea class="form-input form-textarea" id="city-food" placeholder=""></textarea></div>
+    </div>
+    <div id="mtab-citymood" style="display:none">
+      <div class="form-group"><label class="form-label">Первое впечатление</label><textarea class="form-input form-textarea" id="city-first_impression" placeholder="Что чувствует человек, впервые попавший в город..."></textarea></div>
+      <div class="form-group"><label class="form-label">Три слова, описывающих город</label><input type="text" class="form-input" id="city-three_words" placeholder="Грязный, живой, опасный..."></div>
+      <div class="form-group"><label class="form-label">Цветовая палитра</label><input type="text" class="form-input" id="city-color_palette" placeholder="Серый, коричневый, вспышки медного..."></div>
+      <div class="form-group"><label class="form-label">Ритм жизни</label><input type="text" class="form-input" id="city-rhythm" placeholder="Лихорадочный, сонный, деловой..."></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Где чувствуется опасность</label><textarea class="form-input form-textarea" id="city-danger_places" placeholder=""></textarea></div>
+        <div class="form-group"><label class="form-label">Где человек в безопасности</label><textarea class="form-input form-textarea" id="city-safe_places" placeholder=""></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Места, которые знают только местные</label><textarea class="form-input form-textarea" id="city-locals_only" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Легенды именно об этом городе</label><textarea class="form-input form-textarea" id="city-city_legends" placeholder=""></textarea></div>
+      <div class="form-group"><label class="form-label">Заметки</label><textarea class="form-input form-textarea" id="city-notes" placeholder=""></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('cityModal')">Отмена</button>
+      <button class="btn-save" id="saveCityBtn" onclick="saveCity()">Сохранить</button>
     </div>
   </div>
 </div>
@@ -457,6 +599,9 @@
       <div class="form-group"><label class="form-label">Возраст / период</label>
         <input type="text" class="form-input" id="img-period" placeholder="юность, год 358, ~16 лет...">
       </div>
+    </div>
+    <div class="form-group"><label class="form-label">Комментарий к изображению</label>
+      <input type="text" class="form-input" id="img-comment" placeholder="Лу с сыном Питером на руках, Питеру 2 года...">
     </div>
     <div class="form-group">
       <label class="form-label">Изображение</label>
