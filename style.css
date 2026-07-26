@@ -1037,3 +1037,22 @@ body {
   color: var(--ink3);
   font-size: 12px;
 }
+
+/* ── ALL TAB ── */
+.all-section { margin-bottom: 1rem; }
+.all-section-title {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink3); padding-bottom: 5px; border-bottom: 0.5px solid var(--parch3);
+  margin-bottom: 8px;
+}
+.all-row {
+  display: grid; grid-template-columns: 160px 1fr;
+  gap: 6px; padding: 4px 0; font-size: 13px;
+  border-bottom: 0.5px solid var(--parch3);
+}
+.all-row:last-child { border-bottom: none; }
+.all-key { color: var(--ink3); font-size: 12px; }
+.all-val { color: var(--ink); }
+.all-long-row { padding: 8px 0; border-bottom: 0.5px solid var(--parch3); margin-bottom: 4px; }
+.all-long-row .all-key { font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink3); margin-bottom: 4px; display: block; }
+.all-long-val { font-family: 'Cormorant Garamond', serif; font-size: 15px; line-height: 1.75; color: var(--ink2); }
