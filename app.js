@@ -48,6 +48,22 @@ const WORLD_EXTENDED_FIELDS = [
   'geography','magic_system','magic_definition','magic_source','magic_who_can','magic_who_cannot',
   'magic_how_appears','magic_can_lose','magic_limits','magic_cost','magic_can_learn',
   'magic_schools','magic_society_impact','magic_forbidden','magic_control',
+  'gov_form','gov_ruler','gov_succession','gov_parliament','gov_aristocracy','gov_classes','gov_titles',
+  'law_main','law_crimes','law_police','law_court','law_prisons','law_punishment','law_rights',
+  'army_service','army_ranks','army_branches','army_weapons','army_commanders','army_academies',
+  'econ_currency','econ_income','econ_taxes','econ_industries','econ_trade','econ_rich','econ_poor',
+  'tech_level','tech_discoveries','tech_energy','tech_transport','tech_communication','tech_medicine','tech_weapons','tech_construction',
+  'soc_men','soc_women','soc_children','soc_family','soc_marriage','soc_inheritance','soc_poor','soc_rich',
+  'cult_holidays','cult_music','cult_theatre','cult_literature','cult_architecture','cult_fashion','cult_symbols',
+  'edu_schools','edu_universities','edu_who_can','edu_literacy','edu_prestigious','edu_subjects',
+  'med_healers','med_diseases','med_deadly','med_surgery','med_herbs','med_lifespan',
+  'life_food','life_drinks','life_cooking','life_breakfast','life_dinner','life_housing','life_lighting','life_heating','life_water',
+  'trans_roads','trans_railways','trans_ships','trans_air','trans_speed','trans_cost',
+  'media_newspapers','media_books','media_post','media_telegraph','media_news',
+  'lang_state','lang_alphabet','lang_dialects','lang_proverbs','lang_slang',
+  'daily_workday','daily_hours','daily_weekends','daily_evening','daily_entertainment','daily_sports',
+  'notable_scientists','notable_commanders','notable_artists','notable_criminals','notable_heroes',
+  'orgs_guilds','orgs_secret','orgs_military','orgs_banks',
   'technology','politics','religion','culture','conflicts','notes'
 ];
 
@@ -652,12 +668,18 @@ function renderWorldDetail() {
         </div>
       </div>
 
-      <div class="tabs">
+      <div class="tabs" style="flex-wrap:wrap">
         <div class="tab active" onclick="switchWorldTab('overview',this)">Обзор</div>
         <div class="tab" onclick="switchWorldTab('history',this)">История</div>
         <div class="tab" onclick="switchWorldTab('magic',this)">Магия</div>
-        <div class="tab" onclick="switchWorldTab('laws',this)">Законы мира</div>
+        <div class="tab" onclick="switchWorldTab('laws',this)">Законы</div>
         <div class="tab" onclick="switchWorldTab('people',this)">Люди</div>
+        <div class="tab" onclick="switchWorldTab('state',this)">Государство</div>
+        <div class="tab" onclick="switchWorldTab('society',this)">Общество</div>
+        <div class="tab" onclick="switchWorldTab('economy',this)">Экономика</div>
+        <div class="tab" onclick="switchWorldTab('culture2',this)">Культура</div>
+        <div class="tab" onclick="switchWorldTab('daily',this)">Быт</div>
+        <div class="tab" onclick="switchWorldTab('notable',this)">Личности</div>
         <div class="tab" onclick="switchWorldTab('cities',this)">Города <span class="tab-badge">${worldCities.length}</span></div>
       </div>
 
@@ -729,6 +751,122 @@ function renderWorldDetail() {
         ${sb('Стандарты красоты', w.beauty_standards)}
       </div>
 
+      <div id="wtab-state" style="display:none">
+        ${sb('Форма правления', w.gov_form)}
+        ${sb('Кто руководит и как передаётся власть', w.gov_ruler || w.gov_succession)}
+        ${sb('Парламент / выборы', w.gov_parliament)}
+        ${sb('Аристократия и сословия', w.gov_aristocracy || w.gov_classes)}
+        ${sb('Титулы и должности', w.gov_titles)}
+        <div class="all-section-title" style="margin-top:1rem">Право</div>
+        ${sb('Основные законы', w.law_main)}
+        ${sb('Тяжкие преступления', w.law_crimes)}
+        ${sb('Полиция и суд', w.law_police || w.law_court)}
+        ${sb('Тюрьмы и наказания', w.law_prisons || w.law_punishment)}
+        ${sb('Права граждан', w.law_rights)}
+        <div class="all-section-title" style="margin-top:1rem">Армия</div>
+        ${sb('Обязательная / профессиональная служба', w.army_service)}
+        ${sb('Звания и рода войск', w.army_ranks || w.army_branches)}
+        ${sb('Оружие', w.army_weapons)}
+        ${sb('Известные полководцы', w.army_commanders)}
+        ${sb('Военные академии', w.army_academies)}
+        ${sb('Политика (общее)', w.politics)}
+      </div>
+
+      <div id="wtab-society" style="display:none">
+        ${sb('Роль мужчин', w.soc_men)}
+        ${sb('Роль женщин', w.soc_women)}
+        ${sb('Роль детей', w.soc_children)}
+        ${sb('Семья и брак', w.soc_family || w.soc_marriage)}
+        ${sb('Наследование', w.soc_inheritance)}
+        ${sb('Отношение к бедным', w.soc_poor)}
+        ${sb('Отношение к богатым', w.soc_rich)}
+        ${sb('Религия', w.religion)}
+      </div>
+
+      <div id="wtab-economy" style="display:none">
+        ${sb('Валюта', w.econ_currency)}
+        ${sb('Доход среднего человека', w.econ_income)}
+        ${sb('Налоги', w.econ_taxes)}
+        ${sb('Основные отрасли', w.econ_industries)}
+        ${sb('Торговля (импорт/экспорт)', w.econ_trade)}
+        ${sb('Богатейшие города/регионы', w.econ_rich)}
+        ${sb('Беднейшие регионы', w.econ_poor)}
+        <div class="all-section-title" style="margin-top:1rem">Технологии</div>
+        ${sb('Общий уровень технологий', w.tech_level || w.technology)}
+        ${sb('Открытия изменившие мир', w.tech_discoveries)}
+        ${sb('Источники энергии', w.tech_energy)}
+        ${sb('Транспорт', w.tech_transport)}
+        ${sb('Связь', w.tech_communication)}
+        ${sb('Медицина', w.tech_medicine)}
+        ${sb('Оружие', w.tech_weapons)}
+        ${sb('Строительство', w.tech_construction)}
+      </div>
+
+      <div id="wtab-culture2" style="display:none">
+        ${sb('Праздники', w.cult_holidays)}
+        ${sb('Музыка', w.cult_music)}
+        ${sb('Театр', w.cult_theatre)}
+        ${sb('Литература', w.cult_literature)}
+        ${sb('Архитектура', w.cult_architecture)}
+        ${sb('Мода и причёски', w.cult_fashion)}
+        ${sb('Национальные символы', w.cult_symbols)}
+        ${sb('Культура (общее)', w.culture)}
+        <div class="all-section-title" style="margin-top:1rem">Образование</div>
+        ${sb('Школы и университеты', w.edu_schools || w.edu_universities)}
+        ${sb('Кто может учиться', w.edu_who_can)}
+        ${sb('Грамотность населения', w.edu_literacy)}
+        ${sb('Престижные профессии', w.edu_prestigious)}
+        ${sb('Предметы', w.edu_subjects)}
+        <div class="all-section-title" style="margin-top:1rem">СМИ и язык</div>
+        ${sb('Газеты и книги', w.media_newspapers || w.media_books)}
+        ${sb('Почта и телеграф', w.media_post || w.media_telegraph)}
+        ${sb('Кто распространяет новости', w.media_news)}
+        ${sb('Государственный язык и алфавит', w.lang_state || w.lang_alphabet)}
+        ${sb('Диалекты', w.lang_dialects)}
+        ${sb('Пословицы и идиомы', w.lang_proverbs)}
+        ${sb('Сленг и ругательства', w.lang_slang)}
+      </div>
+
+      <div id="wtab-daily" style="display:none">
+        <div class="all-section-title">Медицина</div>
+        ${sb('Кто лечит людей', w.med_healers)}
+        ${sb('Распространённые болезни', w.med_diseases)}
+        ${sb('Смертельные болезни', w.med_deadly)}
+        ${sb('Хирургия и анестезия', w.med_surgery)}
+        ${sb('Лекарственные растения', w.med_herbs)}
+        ${sb('Продолжительность жизни', w.med_lifespan)}
+        <div class="all-section-title" style="margin-top:1rem">Быт</div>
+        ${sb('Что едят', w.life_food)}
+        ${sb('Что пьют', w.life_drinks)}
+        ${sb('Как готовят', w.life_cooking)}
+        ${sb('Типичный завтрак / обед / ужин', [w.life_breakfast, w.life_dinner].filter(Boolean).join(' | '))}
+        ${sb('Жильё', w.life_housing)}
+        ${sb('Освещение и отопление', [w.life_lighting, w.life_heating].filter(Boolean).join(' | '))}
+        ${sb('Водоснабжение', w.life_water)}
+        <div class="all-section-title" style="margin-top:1rem">Транспорт</div>
+        ${sb('Дороги и железные дороги', w.trans_roads || w.trans_railways)}
+        ${sb('Корабли и воздушный транспорт', w.trans_ships || w.trans_air)}
+        ${sb('Скорость и стоимость путешествий', w.trans_speed || w.trans_cost)}
+        <div class="all-section-title" style="margin-top:1rem">Повседневная жизнь</div>
+        ${sb('Рабочий день', w.daily_workday || w.daily_hours)}
+        ${sb('Выходные и отпуска', w.daily_weekends)}
+        ${sb('Вечерний досуг', w.daily_evening)}
+        ${sb('Развлечения и спорт', w.daily_entertainment || w.daily_sports)}
+      </div>
+
+      <div id="wtab-notable" style="display:none">
+        ${sb('Величайшие учёные', w.notable_scientists)}
+        ${sb('Полководцы', w.notable_commanders)}
+        ${sb('Художники и изобретатели', w.notable_artists)}
+        ${sb('Известные преступники', w.notable_criminals)}
+        ${sb('Герои', w.notable_heroes)}
+        <div class="all-section-title" style="margin-top:1rem">Главные организации</div>
+        ${sb('Гильдии', w.orgs_guilds)}
+        ${sb('Тайные общества', w.orgs_secret)}
+        ${sb('Военные организации', w.orgs_military)}
+        ${sb('Банки и корпорации', w.orgs_banks)}
+      </div>
+
       <div id="wtab-cities" style="display:none">
         ${worldCities.length ? `
           <div class="worlds-grid">${worldCities.map(city=>`
@@ -749,11 +887,15 @@ function renderWorldDetail() {
 }
 
 function switchWorldTab(name, el) {
-  ['overview','history','magic','laws','people','cities'].forEach(t => {
+  ['overview','history','magic','laws','people','state','society','economy','culture2','daily','notable','cities'].forEach(t => {
     const e = document.getElementById('wtab-'+t); if(e) e.style.display = t===name?'block':'none';
   });
-  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
-  if(el) el.classList.add('active');
+  // Only update active tab within the world detail tabs container
+  const tabsContainer = el ? el.closest('.tabs') : null;
+  if (tabsContainer) {
+    tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
 }
 function showAddWorldModal() {
   editingWorldId = null;
