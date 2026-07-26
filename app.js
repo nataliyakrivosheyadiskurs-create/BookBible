@@ -130,6 +130,7 @@ async function loadAndRender() {
     worlds = worldsRes.data || [];
     charBooks = charBooksRes.data || [];
     cities = citiesRes.data || [];
+    preloadGraphImages();
     showView('all');
     renderSidebar(); renderGrid(); updateBookFilter();
   } catch(e) {
@@ -859,6 +860,7 @@ async function uploadImage() {
     const {data:imgRecord,error:dbError} = await db.from('character_images').insert({character_id:imgCharId,emotion,period,comment,url:urlData.publicUrl}).select().single();
     if(dbError) throw dbError;
     images.push(imgRecord);
+    preloadGraphImages();
     hideModal('imgModal');
     if(currentChar&&currentChar.id===imgCharId) renderDetail();
     renderGrid(); renderSidebar();
