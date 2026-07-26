@@ -39,6 +39,14 @@
       <i class="ti ti-search"></i>
       <input type="text" class="topbar-search" placeholder="Поиск..." id="searchInput" oninput="filterChars()">
     </div>
+    <div class="type-filter-group">
+      <button class="type-filter-btn active" data-type="all" onclick="setCharTypeFilter('all')">Все</button>
+      <button class="type-filter-btn" data-type="main" onclick="setCharTypeFilter('main')">Главные</button>
+      <button class="type-filter-btn" data-type="secondary" onclick="setCharTypeFilter('secondary')">Второстепенные</button>
+    </div>
+    <select class="book-filter" id="familyFilter" onchange="setFamilyFilter(this.value)">
+      <option value="">Все семьи</option>
+    </select>
     <select class="book-filter" id="bookFilter" onchange="filterByBook(this.value)">
       <option value="">Все книги</option>
     </select>
@@ -135,6 +143,20 @@
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Основная книга</label><input type="text" class="form-input" id="f-book" placeholder="Книга 1"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Семья / род</label><input type="text" class="form-input" id="f-family" placeholder="Риверс, Блэквуд..."></div>
+        <div class="form-group"><label class="form-label">Поколение</label><input type="text" class="form-input" id="f-generation" placeholder="Первое, внук Джека..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Тип персонажа</label>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px">
+            <input type="radio" name="char_type" id="f-char_type-main" value="main" checked style="accent-color:var(--accent)"> Главный
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px">
+            <input type="radio" name="char_type" id="f-char_type-secondary" value="secondary" style="accent-color:var(--accent)"> Второстепенный
+          </label>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Теги</label><input type="text" class="form-input" id="f-tags" placeholder="маг, воин, загадочный"></div>
@@ -383,19 +405,40 @@
 <!-- REL MODAL -->
 <div id="relModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'relModal')">
   <div class="modal">
-    <h2>Добавить связь</h2>
+    <h2 id="relModalTitle">Добавить связь</h2>
     <div class="form-group"><label class="form-label">Персонаж</label><select class="form-input" id="rel-target"></select></div>
-    <div class="form-group"><label class="form-label">Тип отношений</label>
-      <select class="form-input" id="rel-type">
-        <option>Друзья</option><option>Враги</option><option>Влюблённые</option>
-        <option>Родственники</option><option>Союзники</option><option>Наставник / Ученик</option>
-        <option>Соперники</option><option>Нейтральные</option>
-      </select>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Тип отношений</label>
+        <select class="form-input" id="rel-type">
+          <option>Друзья</option><option>Враги</option><option>Влюблённые</option>
+          <option>Родственники</option><option>Союзники</option><option>Наставник / Ученик</option>
+          <option>Соперники</option><option>Нейтральные</option><option>Коллеги</option>
+          <option>Бывшие</option><option>Покровитель</option><option>Предатель</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Интенсивность</label>
+        <select class="form-input" id="rel-intensity">
+          <option value="враждебные">💢 Враждебные</option>
+          <option value="напряжённые">⚡ Напряжённые</option>
+          <option value="нейтральные" selected>○ Нейтральные</option>
+          <option value="тёплые">🌿 Тёплые</option>
+          <option value="близкие">💙 Близкие</option>
+          <option value="преданные">❤️ Преданные</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group"><label class="form-label">Описание</label><textarea class="form-input form-textarea" id="rel-desc" placeholder="Как сложились отношения..."></textarea></div>
+    <div class="form-group"><label class="form-label">Описание</label><textarea class="form-input form-textarea" id="rel-desc" placeholder="Общее описание отношений..."></textarea></div>
+    <div class="form-group"><label class="form-label">Как познакомились</label><textarea class="form-input form-textarea" style="min-height:60px" id="rel-how_they_met" placeholder="История знакомства..."></textarea></div>
+    <div class="form-group"><label class="form-label">Динамика отношений</label><textarea class="form-input form-textarea" style="min-height:60px" id="rel-dynamic" placeholder="Как взаимодействуют, кто доминирует, как меняются..."></textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Конфликты</label><textarea class="form-input form-textarea" style="min-height:60px" id="rel-conflicts" placeholder="Из-за чего спорят, главные противоречия..."></textarea></div>
+      <div class="form-group"><label class="form-label">Тайны / что скрывают</label><textarea class="form-input form-textarea" style="min-height:60px" id="rel-secrets" placeholder="Что один скрывает от другого..."></textarea></div>
+    </div>
+    <div class="form-group"><label class="form-label">История отношений</label><textarea class="form-input form-textarea" style="min-height:60px" id="rel-history" placeholder="Ключевые моменты в истории отношений..."></textarea></div>
+    <div class="form-group"><label class="form-label">Текущий статус</label><input type="text" class="form-input" id="rel-current_status" placeholder="Живут вместе, в ссоре, не общаются..."></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="hideModal('relModal')">Отмена</button>
-      <button class="btn-save" onclick="saveRel()">Добавить</button>
+      <button class="btn-save" onclick="saveRel()">Сохранить</button>
     </div>
   </div>
 </div>
