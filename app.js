@@ -35,7 +35,31 @@ const WORLD_FIELDS = ['name','genre','summary','history','geography','magic_syst
 
 const CHARBOOK_FIELDS = ['book_title','book_order','role','age_at_events','appearance_changes','personality_changes','arc','key_events','relationships_changes','notes'];
 
-let chars = [], images = [], relationships = [], worlds = [], charBooks = [];
+let chars = [], images = [], relationships = [], worlds = [], charBooks = [], cities = [];
+
+const WORLD_EXTENDED_FIELDS = [
+  'name','genre','subgenres','mood','main_themes','central_idea','unique_feature',
+  'differs_from_typical','what_is_impossible','world_origin','world_motto',
+  'summary','history','world_creation','creation_legends','historians_knowledge',
+  'myths_vs_truth','epochs','important_events','destructive_wars','disasters',
+  'important_discoveries','modern_era_start','before_after_events','chronology',
+  'physical_laws','immortality','resurrection','soul','afterlife','ghosts','time_travel','fate',
+  'peoples','ethnic_groups','appearance_differences','typical_names','languages','lifespan','beauty_standards',
+  'geography','magic_system','magic_definition','magic_source','magic_who_can','magic_who_cannot',
+  'magic_how_appears','magic_can_lose','magic_limits','magic_cost','magic_can_learn',
+  'magic_schools','magic_society_impact','magic_forbidden','magic_control',
+  'technology','politics','religion','culture','conflicts','notes'
+];
+
+const CITY_FIELDS = [
+  'name','name_origin','founded','motto','region','population','area','languages','literacy',
+  'city_history','city_events','famous_residents',
+  'layout','architecture','landmarks',
+  'economy','government',
+  'daily_life','smells','sounds','food',
+  'first_impression','three_words','color_palette','rhythm',
+  'danger_places','safe_places','locals_only','city_legends','notes'
+];
 let charTypeFilter = 'all'; // all | main | secondary
 let familyFilter = '';
 let editingRelId = null;
@@ -91,12 +115,13 @@ document.addEventListener('keydown', e => {
 async function loadAndRender() {
   showView('loading');
   try {
-    const [charsRes, imgsRes, relsRes, worldsRes, charBooksRes] = await Promise.all([
+    const [charsRes, imgsRes, relsRes, worldsRes, charBooksRes, citiesRes] = await Promise.all([
       db.from('characters').select('*').order('created_at'),
       db.from('character_images').select('*').order('created_at'),
       db.from('relationships').select('*'),
       db.from('worlds').select('*').order('created_at'),
-      db.from('character_books').select('*').order('book_order')
+      db.from('character_books').select('*').order('book_order'),
+      db.from('world_cities').select('*').order('created_at')
     ]);
     if (charsRes.error) throw charsRes.error;
     chars = charsRes.data || [];
@@ -104,6 +129,7 @@ async function loadAndRender() {
     relationships = relsRes.data || [];
     worlds = worldsRes.data || [];
     charBooks = charBooksRes.data || [];
+    cities = citiesRes.data || [];
     showView('all');
     renderSidebar(); renderGrid(); updateBookFilter();
   } catch(e) {
@@ -256,7 +282,7 @@ function renderDetail() {
     ? `<div class="img-grid">${imgs.map(img=>`
         <div class="img-item ${img.id === c.avatar_image_id ? 'is-avatar' : ''}" onclick="openLightbox('${img.url}')">
           <img src="${img.url}" alt="${img.emotion}">
-          <div class="img-item-label">${img.period ? img.period + ' · ' : ''}${img.emotion}</div>
+          <div class="img-item-label">${[img.period, img.emotion, img.comment].filter(Boolean).join(' · ')}</div>
           ${img.id === c.avatar_image_id ? '<div class="avatar-crown" title="Аватар">★</div>' : ''}
           <div class="img-item-actions">
             <button class="img-action-btn" title="Сделать аватаром" onclick="event.stopPropagation();setAvatar('${c.id}','${img.id}')"><i class="ti ti-user-circle"></i></button>
@@ -348,6 +374,7 @@ function renderDetail() {
           <div class="tab" onclick="switchTab('books',this)">По книгам <span class="tab-badge">${cBooks.length}</span></div>
           <div class="tab" onclick="switchTab('relations',this)">Связи <span class="tab-badge">${rels.length}</span></div>
           <div class="tab" onclick="switchTab('prompt',this)">AI-промпт</div>
+          <div class="tab" onclick="switchTab('all',this)" style="margin-left:auto;color:var(--gold)">📋 Всё</div>
         </div>
 
         <div id="tab-info">
@@ -396,6 +423,10 @@ function renderDetail() {
           </div>
         </div>
 
+        <div id="tab-all" style="display:none">
+          ${buildAllTab(c)}
+        </div>
+
         <div class="action-btns">
           <button class="btn-edit" onclick="editChar('${c.id}')"><i class="ti ti-edit"></i> Редактировать</button>
           <button class="btn-delete" onclick="deleteChar('${c.id}')"><i class="ti ti-trash"></i> Удалить</button>
@@ -412,7 +443,7 @@ function buildInfoBlock(title, rows) {
 }
 
 function switchTab(name, el) {
-  ['info','char','story','books','relations','prompt'].forEach(t => {
+  ['info','char','story','books','relations','prompt','all'].forEach(t => {
     const e = document.getElementById('tab-'+t); if(e) e.style.display = t===name?'block':'none';
   });
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -602,28 +633,133 @@ function openWorld(id) {
 }
 function renderWorldDetail() {
   const w = currentWorld;
-  const sections = [
-    ['Краткое описание',w.summary],['История мира',w.history],['География',w.geography],
-    ['Магическая система',w.magic_system],['Технологии',w.technology],['Политика',w.politics],
-    ['Религия',w.religion],['Культура',w.culture],['Главные конфликты',w.conflicts],['📝 Заметки',w.notes]
-  ].filter(([,v])=>v).map(([t,v])=>`<div class="info-block"><h3>${t}</h3><p class="bio-text">${v}</p></div>`).join('');
+  const worldCities = cities.filter(c => c.world_id === w.id);
+
+  const sb = (title, val) => val ? `<div class="info-block"><h3>${title}</h3><p class="bio-text">${val}</p></div>` : '';
+  const infoRow = (k,v) => v ? `<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${v}</span></div>` : '';
+
   document.getElementById('worldDetailContent').innerHTML = `
-    <div style="max-width:860px">
+    <div style="max-width:900px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
-        <div><div class="detail-name">🌍 ${w.name}</div><div class="detail-role">${w.genre||''}</div></div>
+        <div>
+          <div class="detail-name">🌍 ${w.name}</div>
+          <div class="detail-role">${[w.genre,w.subgenres,w.mood].filter(Boolean).join(' · ')}</div>
+          ${w.world_motto?`<div style="font-style:italic;color:var(--ink3);margin-top:4px">"${w.world_motto}"</div>`:''}
+        </div>
         <div class="action-btns" style="margin-top:0">
           <button class="btn-edit" onclick="editWorld('${w.id}')"><i class="ti ti-edit"></i> Редактировать</button>
           <button class="btn-delete" onclick="deleteWorld('${w.id}')"><i class="ti ti-trash"></i> Удалить</button>
         </div>
       </div>
-      ${sections||'<div style="color:var(--ink3)">Заполни описание мира</div>'}
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchWorldTab('overview',this)">Обзор</div>
+        <div class="tab" onclick="switchWorldTab('history',this)">История</div>
+        <div class="tab" onclick="switchWorldTab('magic',this)">Магия</div>
+        <div class="tab" onclick="switchWorldTab('laws',this)">Законы мира</div>
+        <div class="tab" onclick="switchWorldTab('people',this)">Люди</div>
+        <div class="tab" onclick="switchWorldTab('cities',this)">Города <span class="tab-badge">${worldCities.length}</span></div>
+      </div>
+
+      <div id="wtab-overview">
+        ${sb('Краткое описание', w.summary)}
+        ${sb('Центральная идея', w.central_idea)}
+        ${sb('Основные темы', w.main_themes)}
+        ${sb('Уникальная особенность', w.unique_feature)}
+        ${sb('Чем отличается от типичного фэнтези', w.differs_from_typical)}
+        ${sb('Что считается невозможным', w.what_is_impossible)}
+        ${sb('География', w.geography)}
+        ${sb('Технологии', w.technology)}
+        ${sb('Политика', w.politics)}
+        ${sb('Религия', w.religion)}
+        ${sb('Культура', w.culture)}
+        ${sb('Конфликты', w.conflicts)}
+        ${sb('Заметки', w.notes)}
+      </div>
+
+      <div id="wtab-history" style="display:none">
+        ${sb('Как появился мир / кто создал', w.world_creation)}
+        ${sb('Легенды о создании', w.creation_legends)}
+        ${sb('Что известно историкам', w.historians_knowledge)}
+        ${sb('Мифы vs. правда', w.myths_vs_truth)}
+        ${sb('Эпохи', w.epochs)}
+        ${sb('История мира', w.history)}
+        ${sb('Важнейшие исторические события', w.important_events)}
+        ${sb('Разрушительные войны', w.destructive_wars)}
+        ${sb('Катастрофы', w.disasters)}
+        ${sb('Важные открытия', w.important_discoveries)}
+        ${sb('Начало современной эпохи', w.modern_era_start)}
+        ${sb('События разделившие историю на "до" и "после"', w.before_after_events)}
+        ${sb('Хронология', w.chronology)}
+      </div>
+
+      <div id="wtab-magic" style="display:none">
+        ${sb('Что считается магией', w.magic_definition)}
+        ${sb('Источник магии', w.magic_source)}
+        ${sb('Кто может использовать', w.magic_who_can)}
+        ${sb('Кто не может', w.magic_who_cannot)}
+        ${sb('Как появляется способность', w.magic_how_appears)}
+        ${sb('Можно ли потерять', w.magic_can_lose)}
+        ${sb('Ограничения', w.magic_limits)}
+        ${sb('Цена использования', w.magic_cost)}
+        ${sb('Можно ли обучиться', w.magic_can_learn)}
+        ${sb('Школы магии', w.magic_schools)}
+        ${sb('Как магия влияет на общество', w.magic_society_impact)}
+        ${sb('Запретные виды магии', w.magic_forbidden)}
+        ${sb('Кто контролирует использование', w.magic_control)}
+        ${sb('Магическая система (общее)', w.magic_system)}
+      </div>
+
+      <div id="wtab-laws" style="display:none">
+        ${sb('Физические законы, которые отличаются', w.physical_laws)}
+        ${sb('Бессмертие', w.immortality)}
+        ${sb('Воскрешение', w.resurrection)}
+        ${sb('Душа / что происходит после смерти', w.soul || w.afterlife)}
+        ${sb('Призраки', w.ghosts)}
+        ${sb('Путешествия во времени', w.time_travel)}
+        ${sb('Судьба — существует ли, можно ли изменить', w.fate)}
+      </div>
+
+      <div id="wtab-people" style="display:none">
+        ${sb('Основные народы и этносы', w.peoples || w.ethnic_groups)}
+        ${sb('Внешние отличия народов', w.appearance_differences)}
+        ${sb('Типичные имена', w.typical_names)}
+        ${sb('Языки и диалекты', w.languages)}
+        ${sb('Продолжительность жизни', w.lifespan)}
+        ${sb('Стандарты красоты', w.beauty_standards)}
+      </div>
+
+      <div id="wtab-cities" style="display:none">
+        ${worldCities.length ? `
+          <div class="worlds-grid">${worldCities.map(city=>`
+            <div class="world-card" onclick="openCity('${city.id}')">
+              <div class="world-card-icon">🏙️</div>
+              <div class="world-card-body">
+                <div class="world-card-name">${city.name}</div>
+                <div class="world-card-genre">${city.region||''}</div>
+                ${city.first_impression?`<div class="world-card-summary">${city.first_impression}</div>`:''}
+              </div>
+            </div>`).join('')}
+          </div>` : `<div style="color:var(--ink3);font-size:14px;padding:1rem 0">Городов пока нет</div>`}
+        <button class="topbar-btn" style="margin-top:1rem" onclick="showAddCityModal('${w.id}')">
+          <i class="ti ti-building-plus"></i> Добавить город
+        </button>
+      </div>
     </div>`;
+}
+
+function switchWorldTab(name, el) {
+  ['overview','history','magic','laws','people','cities'].forEach(t => {
+    const e = document.getElementById('wtab-'+t); if(e) e.style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
 }
 function showAddWorldModal() {
   editingWorldId = null;
   document.getElementById('worldModalTitle').textContent = 'Новый мир';
   document.getElementById('saveWorldBtnText').textContent = 'Сохранить';
-  WORLD_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) el.value=''; });
+  WORLD_EXTENDED_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) el.value=''; });
   switchModalTab('wbasic', document.querySelector('#worldModal .modal-tab'));
   document.getElementById('worldModal').style.display = 'flex';
 }
@@ -631,7 +767,7 @@ function editWorld(id) {
   const w = getWorld(id); if(!w) return;
   editingWorldId = id;
   document.getElementById('worldModalTitle').textContent = 'Редактировать мир';
-  WORLD_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) el.value=w[f]||''; });
+  WORLD_EXTENDED_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) el.value=w[f]||''; });
   switchModalTab('wbasic', document.querySelector('#worldModal .modal-tab'));
   document.getElementById('worldModal').style.display = 'flex';
 }
@@ -641,7 +777,7 @@ async function saveWorld() {
   const btn = document.getElementById('saveWorldBtn');
   btn.disabled = true; document.getElementById('saveWorldBtnText').textContent = 'Сохранение...';
   const data = {};
-  WORLD_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) data[f]=el.value; });
+  WORLD_EXTENDED_FIELDS.forEach(f => { const el = document.getElementById('w-'+f); if(el) data[f]=el.value; });
   try {
     if (editingWorldId) {
       const { error } = await db.from('worlds').update(data).eq('id', editingWorldId);
@@ -686,6 +822,7 @@ function showImgModal(charId) {
   document.getElementById('uploadBtnText').textContent = 'Загрузить';
   document.getElementById('imgFileInput').value = '';
   document.getElementById('img-period').value = '';
+  document.getElementById('img-comment').value = '';
   document.getElementById('imgModal').style.display = 'flex';
 }
 let imgOriginalDataUrl = null;
@@ -718,7 +855,8 @@ async function uploadImage() {
     const {data:urlData}=db.storage.from('character-images').getPublicUrl(fileName);
     const emotion = document.getElementById('img-emotion').value;
     const period = document.getElementById('img-period').value.trim();
-    const {data:imgRecord,error:dbError} = await db.from('character_images').insert({character_id:imgCharId,emotion,period,url:urlData.publicUrl}).select().single();
+    const comment = document.getElementById('img-comment').value.trim();
+    const {data:imgRecord,error:dbError} = await db.from('character_images').insert({character_id:imgCharId,emotion,period,comment,url:urlData.publicUrl}).select().single();
     if(dbError) throw dbError;
     images.push(imgRecord);
     hideModal('imgModal');
@@ -895,6 +1033,241 @@ function showToast(msg){
   el.textContent=msg; el.style.display='block';
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>el.style.display='none',2500);
+}
+
+function buildAllTab(c) {
+  const row = (label, val) => val ? `<div class="all-row"><span class="all-key">${label}</span><span class="all-val">${val}</span></div>` : '';
+  const section = (title, rows) => {
+    const content = rows.map(([l,v])=>row(l,v)).join('');
+    return content ? `<div class="all-section"><div class="all-section-title">${title}</div>${content}</div>` : '';
+  };
+  const longRow = (label, val) => val ? `<div class="all-long-row"><div class="all-key">${label}</div><div class="all-long-val">${val.replace(/\n/g,'<br>')}</div></div>` : '';
+
+  return `
+    ${section('Основное', [
+      ['Полное имя', c.name], ['Прозвище', c.nickname], ['Роль', c.role],
+      ['Тип', c.char_type==='secondary'?'Второстепенный':'Главный'],
+      ['Пол', c.gender], ['Дата рождения', c.birth_date], ['Дата смерти', c.death_date],
+      ['Семья', c.family], ['Поколение', c.generation], ['Книга', c.book],
+    ])}
+
+    <div class="all-section-title" style="margin-top:1.5rem">Внешность</div>
+    ${section('Параметры', [
+      ['Рост', c.height], ['Телосложение', c.body_type],
+      ['Физ. сила (впечатление)', c.build_strength], ['Осанка', c.posture],
+      ['Правша/левша', c.handedness], ['Походка', c.gait],
+    ])}
+    ${section('Лицо', [
+      ['Форма лица', c.face_shape], ['Лоб', c.forehead],
+      ['Скулы', c.cheekbones], ['Подбородок', c.chin], ['Челюсть', c.jaw],
+    ])}
+    ${section('Кожа', [
+      ['Оттенок', c.skin], ['Загар/веснушки', c.skin_tan],
+    ])}
+    ${section('Глаза', [
+      ['Цвет', c.eyes], ['Форма', c.eye_shape],
+      ['Расположение', c.eye_set], ['Ресницы/брови', c.brows_lashes], ['Взгляд', c.gaze],
+    ])}
+    ${section('Лицо (детали)', [
+      ['Нос', c.nose], ['Губы', c.lips], ['Уши', c.ears],
+      ['Шея', c.neck], ['Руки', c.hands],
+    ])}
+    ${section('Волосы', [
+      ['Цвет', c.hair], ['Текстура/густота', c.hair_texture],
+    ])}
+    ${longRow('Причёска', c.hairstyle)}
+    ${section('Голос и образ', [
+      ['Голос', c.voice], ['Аксессуары', c.accessories],
+      ['Обувь', c.footwear], ['Личные предметы', c.personal_items],
+      ['Цветовая палитра', c.color_palette],
+    ])}
+    ${longRow('Манера держаться', c.mannerisms)}
+    ${longRow('Стиль одежды', c.style)}
+    ${longRow('Особые приметы', c.distinctive_marks)}
+    ${longRow('Первое впечатление', c.first_impression)}
+    ${longRow('Что делает узнаваемым', c.signature_feature)}
+    ${longRow('Описание внешности', c.appearance)}
+
+    <div class="all-section-title" style="margin-top:1.5rem">Характер</div>
+    ${longRow('Три слова', c.personality_words)}
+    ${longRow('Что не подходит', c.personality_not)}
+    ${section('Базовые параметры', [
+      ['Темперамент', c.temperament], ['Интроверт/экстраверт', c.introvert],
+      ['Что важнее', c.core_priority],
+    ])}
+    ${longRow('Шкалы', c.personality_scales)}
+    ${longRow('Общий характер', c.personality)}
+    ${longRow('Самооценка', c.self_esteem)}
+    ${section('Самооценка (детали)', [
+      ['Главное достоинство', c.self_strength], ['Главный недостаток', c.self_weakness],
+      ['Страхи самооценки', c.self_fears],
+    ])}
+    ${longRow('Мировоззрение / ценности', c.worldview)}
+    ${longRow('Что считает непростительным', c.unforgivable)}
+    ${longRow('Моральные границы', c.moral_limits)}
+    ${longRow('Качества в людях', c.people_values)}
+    ${longRow('Страхи', c.fears)}
+    ${longRow('Желания и мечты', c.desires)}
+    ${longRow('Мотивация', c.motivation)}
+    ${longRow('Общение', c.social)}
+    ${longRow('Дружба', c.friendship)}
+    ${longRow('Поведение среди близких', c.behavior_close)}
+    ${longRow('Конфликты', c.conflict_style)}
+    ${longRow('Лидерство', c.leadership)}
+    ${longRow('Интеллект', c.intellect)}
+    ${longRow('Мышление', c.thinking_style)}
+    ${longRow('Эмоциональность', c.emotions)}
+    ${longRow('Реакция на стресс', c.stress_response)}
+    ${longRow('Манера речи', c.speech_style)}
+    ${longRow('Юмор', c.humor)}
+    ${longRow('Повседневные привычки', c.habits)}
+    ${longRow('Маленькие слабости', c.favorites)}
+    ${longRow('Что выводит из себя', c.triggers)}
+    ${longRow('Сильные стороны', c.strengths)}
+    ${longRow('Слабые стороны', c.weaknesses)}
+    ${longRow('Парадоксы личности', c.paradoxes)}
+    ${longRow('Внутренние противоречия', c.inner_conflicts)}
+    ${longRow('Как воспринимают', c.perception)}
+    ${longRow('Тайна', c.secret)}
+
+    <div class="all-section-title" style="margin-top:1.5rem">Глубокие вопросы</div>
+    ${longRow('Когда никто не видит', c.alone_behavior)}
+    ${longRow('Счастливейшая память', c.happiest_memory)}
+    ${longRow('Болезненная память', c.painful_memory)}
+    ${longRow('Сожаления', c.regrets)}
+    ${longRow('Хотел бы услышать', c.longing)}
+    ${longRow('Никогда не скажет вслух', c.would_change)}
+
+    <div class="all-section-title" style="margin-top:1.5rem">История</div>
+    ${longRow('Биография', c.bio)}
+    ${longRow('Предыстория', c.backstory)}
+    ${longRow('Ключевые события', c.key_events)}
+    ${longRow('Общая арка', c.arc)}
+    ${longRow('Заметки автора', c.notes)}
+  `;
+}
+
+let currentCity = null;
+let editingCityId = null;
+
+function openCity(id) {
+  currentCity = cities.find(c=>c.id===id);
+  if (!currentCity) return;
+  renderCityDetail();
+}
+
+function renderCityDetail() {
+  const city = currentCity;
+  const sb = (title, val) => val ? `<div class="info-block"><h3>${title}</h3><p class="bio-text">${val}</p></div>` : '';
+  document.getElementById('worldDetailContent').innerHTML = `
+    <div style="max-width:900px">
+      <div class="back-btn" onclick="renderWorldDetail()" style="margin-bottom:1.5rem"><i class="ti ti-arrow-left"></i> К миру</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <div>
+          <div class="detail-name">🏙️ ${city.name}</div>
+          <div class="detail-role">${[city.region, city.founded?'основан '+city.founded:''].filter(Boolean).join(' · ')}</div>
+          ${city.motto?`<div style="font-style:italic;color:var(--ink3);margin-top:4px">"${city.motto}"</div>`:''}
+        </div>
+        <div class="action-btns" style="margin-top:0">
+          <button class="btn-edit" onclick="showAddCityModal('${city.world_id}','${city.id}')"><i class="ti ti-edit"></i> Редактировать</button>
+          <button class="btn-delete" onclick="deleteCity('${city.id}')"><i class="ti ti-trash"></i> Удалить</button>
+        </div>
+      </div>
+      <div class="tabs">
+        <div class="tab active" onclick="switchCityTab('info',this)">Основное</div>
+        <div class="tab" onclick="switchCityTab('history',this)">История</div>
+        <div class="tab" onclick="switchCityTab('life',this)">Жизнь</div>
+        <div class="tab" onclick="switchCityTab('mood',this)">Атмосфера</div>
+      </div>
+      <div id="ctab-info">
+        ${sb('Население', city.population)} ${sb('Площадь', city.area)}
+        ${sb('Языки', city.languages)} ${sb('Грамотность', city.literacy)}
+        ${sb('Планировка', city.layout)} ${sb('Архитектура', city.architecture)}
+        ${sb('Достопримечательности', city.landmarks)}
+        ${sb('Экономика', city.economy)} ${sb('Власть', city.government)}
+        ${sb('Заметки', city.notes)}
+      </div>
+      <div id="ctab-history" style="display:none">
+        ${sb('История города', city.city_history)}
+        ${sb('Главные события', city.city_events)}
+        ${sb('Известные жители', city.famous_residents)}
+      </div>
+      <div id="ctab-life" style="display:none">
+        ${sb('Повседневная жизнь', city.daily_life)}
+        ${sb('Запахи города', city.smells)}
+        ${sb('Звуки', city.sounds)}
+        ${sb('Еда', city.food)}
+      </div>
+      <div id="ctab-mood" style="display:none">
+        ${sb('Первое впечатление', city.first_impression)}
+        ${sb('Три слова', city.three_words)}
+        ${sb('Цветовая палитра', city.color_palette)}
+        ${sb('Ритм жизни', city.rhythm)}
+        ${sb('Опасные места', city.danger_places)}
+        ${sb('Безопасные места', city.safe_places)}
+        ${sb('Места, которые знают только местные', city.locals_only)}
+        ${sb('Легенды', city.city_legends)}
+      </div>
+    </div>`;
+}
+
+function switchCityTab(name, el) {
+  ['info','history','life','mood'].forEach(t => {
+    const e = document.getElementById('ctab-'+t); if(e) e.style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function showAddCityModal(worldId, cityId) {
+  editingCityId = cityId || null;
+  document.getElementById('city-world-id').value = worldId;
+  document.getElementById('cityModalTitle').textContent = cityId ? 'Редактировать город' : 'Новый город';
+  const city = cityId ? cities.find(c=>c.id===cityId) : null;
+  CITY_FIELDS.forEach(f => {
+    const el = document.getElementById('city-'+f);
+    if (el) el.value = city ? (city[f]||'') : '';
+  });
+  switchModalTab('citybasic', document.querySelector('#cityModal .modal-tab'));
+  document.getElementById('cityModal').style.display = 'flex';
+}
+
+async function saveCity() {
+  const worldId = document.getElementById('city-world-id').value;
+  const name = document.getElementById('city-name').value.trim();
+  if (!name) { showToast('Введи название города'); return; }
+  const btn = document.getElementById('saveCityBtn');
+  btn.disabled = true;
+  const data = { world_id: worldId };
+  CITY_FIELDS.forEach(f => { const el = document.getElementById('city-'+f); if(el) data[f]=el.value; });
+  try {
+    if (editingCityId) {
+      const { error } = await db.from('world_cities').update(data).eq('id', editingCityId);
+      if (error) throw error;
+      const idx = cities.findIndex(c=>c.id===editingCityId);
+      if (idx>=0) cities[idx] = {...cities[idx],...data};
+      currentCity = cities.find(c=>c.id===editingCityId);
+      hideModal('cityModal'); renderCityDetail();
+    } else {
+      const { data: newCity, error } = await db.from('world_cities').insert(data).select().single();
+      if (error) throw error;
+      cities.push(newCity);
+      hideModal('cityModal'); renderWorldDetail();
+      switchWorldTab('cities', null);
+    }
+    showToast(editingCityId ? 'Город обновлён' : 'Город добавлен');
+  } catch(e) { console.error(e); showToast('Ошибка: '+(e.message||'')); }
+  finally { btn.disabled=false; editingCityId=null; }
+}
+
+async function deleteCity(id) {
+  if (!confirm('Удалить город?')) return;
+  try {
+    await db.from('world_cities').delete().eq('id', id);
+    cities = cities.filter(c=>c.id!==id);
+    renderWorldDetail();
+    showToast('Город удалён');
+  } catch(e) { showToast('Ошибка'); }
 }
 
 init();
