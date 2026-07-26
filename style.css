@@ -953,3 +953,87 @@ body {
   border-color: var(--accent);
   color: white;
 }
+
+/* ── TYPE FILTER BUTTONS ── */
+.type-filter-group {
+  display: flex;
+  gap: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 3px;
+}
+.type-filter-btn {
+  background: none;
+  border: none;
+  color: rgba(250,246,240,0.6);
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.type-filter-btn:hover { color: var(--parch); }
+.type-filter-btn.active { background: var(--accent); color: white; }
+
+/* ── SECONDARY CARD ── */
+.char-card-secondary {
+  opacity: 0.85;
+  border-style: dashed;
+}
+.char-card-secondary .char-card-img-placeholder {
+  filter: grayscale(0.3);
+}
+.secondary-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(26,20,16,0.65);
+  color: rgba(250,246,240,0.85);
+  font-size: 9.5px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  z-index: 1;
+}
+.char-card { position: relative; }
+
+/* ── FAMILY BADGE ── */
+.family-badge {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: #b8922a18;
+  color: var(--gold);
+  border: 0.5px solid #b8922a35;
+  white-space: nowrap;
+}
+
+/* ── RELATION ITEM V2 ── */
+.rel-item-v2 {
+  background: var(--parch);
+  border: 0.5px solid var(--parch3);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.rel-item-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.rel-detail-row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 6px;
+  font-size: 12.5px;
+  padding: 4px 0;
+  border-top: 0.5px solid var(--parch3);
+  color: var(--ink2);
+}
+.rel-detail-label {
+  color: var(--ink3);
+  font-size: 12px;
+}
