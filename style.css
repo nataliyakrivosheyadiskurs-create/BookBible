@@ -1141,3 +1141,138 @@ body {
   white-space: nowrap;
   letter-spacing: 0.02em;
 }
+
+/* ══════════════════════════════
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ══════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Скрываем сайдбар на мобильном */
+  .sidebar { display: none; }
+
+  /* Перестраиваем сетку */
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Топбар — компактный */
+  .topbar {
+    padding: 0 0.75rem;
+    gap: 6px;
+    flex-wrap: nowrap;
+    height: auto;
+    min-height: 52px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  .topbar-title { font-size: 17px; white-space: nowrap; }
+  .search-wrap { flex: 1; min-width: 0; }
+  .topbar-search { font-size: 13px; }
+
+  /* Скрываем фильтры типа и семьи в топбаре на мобильном */
+  .type-filter-group { display: none; }
+  #familyFilter { display: none; }
+  #bookFilter { max-width: 100px; font-size: 12px; padding: 5px 6px; }
+
+  /* Кнопки топбара — иконки без текста */
+  .topbar-btn { padding: 6px 8px; font-size: 0; }
+  .topbar-btn i { font-size: 16px; margin: 0; }
+  .topbar-btn::after { display: none; }
+
+  /* Мобильная нижняя навигация */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--ink);
+    z-index: 150;
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+    border-top: 0.5px solid rgba(255,255,255,0.1);
+  }
+  .mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: rgba(250,246,240,0.5);
+    cursor: pointer;
+    padding: 4px 0;
+    border: none;
+    background: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 10px;
+    transition: color 0.15s;
+  }
+  .mobile-nav-btn i { font-size: 20px; }
+  .mobile-nav-btn.active { color: var(--gold); }
+  .mobile-nav-btn:hover { color: var(--parch); }
+
+  /* Отступ снизу для контента (место для нав-бара) */
+  .main { padding-bottom: 70px; }
+
+  /* Карточки — 1 колонка */
+  .char-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+
+  /* Детальный вид */
+  .detail-layout { grid-template-columns: 1fr; }
+  .detail-sidebar { order: -1; }
+  .detail-avatar { aspect-ratio: 3/2; max-height: 260px; }
+
+  /* Модалки — полный экран */
+  .modal-bg { padding: 0; align-items: flex-end; }
+  .modal {
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 1.5rem 1.25rem;
+  }
+  .modal-wide { max-width: 100%; }
+
+  /* Форма — 1 колонка */
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+
+  /* Вкладки — горизонтальный скролл */
+  .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .tab { white-space: nowrap; flex-shrink: 0; }
+  .modal-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .modal-tab { white-space: nowrap; flex-shrink: 0; }
+
+  /* Граф связей */
+  #relGraphCanvas { height: 400px !important; }
+
+  /* Галерея изображений — 2 колонки */
+  .img-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Кропер */
+  #cropCanvas { max-width: 100vw !important; }
+
+  /* Миры */
+  .worlds-grid { grid-template-columns: 1fr; }
+
+  /* Страница заголовок */
+  .page-title { font-size: 24px; }
+  .page-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+
+  /* Связи */
+  .rel-detail-row { grid-template-columns: 110px 1fr; }
+
+  /* Back button */
+  .back-btn { margin-bottom: 1rem; }
+
+  /* Логин */
+  .login-card { padding: 2rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+  .topbar-title span { display: none; }
+  .char-card-img, .char-card-img-placeholder { height: 160px; }
+}
+
+/* Нижняя навигация — скрыта на десктопе */
+.mobile-nav { display: none; }
