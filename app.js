@@ -174,8 +174,17 @@ function showView(v) {
   document.querySelectorAll('[id^=nav-]').forEach(el => el.classList.remove('active'));
   const nav = document.getElementById('nav-'+v);
   if (nav) nav.classList.add('active');
+  // Sync mobile nav
+  ['all','worlds','relations'].forEach(mn => {
+    const btn = document.getElementById('mnav-'+mn);
+    if (btn) btn.classList.toggle('active', mn === v);
+  });
   if (v === 'relations') renderRelMap();
   if (v === 'worlds') renderWorlds();
+}
+
+function mobileNav(view) {
+  showView(view);
 }
 function goBack() { currentChar = null; showView('all'); renderGrid(); }
 
