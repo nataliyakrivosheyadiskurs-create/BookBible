@@ -950,11 +950,20 @@
         <option value="all">Все персонажи</option>
       </select>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3);margin-bottom:1rem">
-      <input type="checkbox" id="export-include-images" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-      <div>
-        <label for="export-include-images" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить изображения</label>
-        <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Каждое фото — отдельный лист на всю страницу с подписью</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
+        <input type="checkbox" id="export-include-images" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+        <div>
+          <label for="export-include-images" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить изображения</label>
+          <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Каждое фото — отдельный лист с подписью</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
+        <input type="checkbox" id="export-include-world" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+        <div>
+          <label for="export-include-world" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить раздел Мир</label>
+          <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Миры, города, история, магия</div>
+        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -975,5 +984,29 @@
 <script src="relations-graph.js"></script>
 <script src="export.js"></script>
 <script src="app.js"></script>
+
+<!-- MOBILE NAVIGATION -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-btn active" id="mnav-all" onclick="mobileNav('all')">
+    <i class="ti ti-users"></i>
+    <span>Персонажи</span>
+  </button>
+  <button class="mobile-nav-btn" id="mnav-worlds" onclick="mobileNav('worlds')">
+    <i class="ti ti-world"></i>
+    <span>Миры</span>
+  </button>
+  <button class="mobile-nav-btn" id="mnav-relations" onclick="mobileNav('relations')">
+    <i class="ti ti-topology-star"></i>
+    <span>Связи</span>
+  </button>
+  <button class="mobile-nav-btn" id="mnav-add" onclick="showAddCharModal()">
+    <i class="ti ti-user-plus"></i>
+    <span>Добавить</span>
+  </button>
+  <button class="mobile-nav-btn" id="mnav-pdf" onclick="showExportModal()">
+    <i class="ti ti-file-type-pdf"></i>
+    <span>PDF</span>
+  </button>
+</div>
 </body>
 </html>
