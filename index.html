@@ -51,6 +51,7 @@
       <option value="">Все книги</option>
     </select>
     <button class="topbar-btn" onclick="showAddCharModal()"><i class="ti ti-user-plus"></i> Персонаж</button>
+    <button class="topbar-btn" onclick="showView('books')" style="background:#2a5c8b"><i class="ti ti-books"></i> Книги</button>
     <button class="topbar-btn" onclick="showView('worlds')" style="background:var(--gold)"><i class="ti ti-world"></i> Миры</button>
     <button class="topbar-btn" onclick="showExportModal()" style="background:#2a5c8b" title="Экспорт в PDF"><i class="ti ti-file-type-pdf"></i> PDF</button>
     <button class="topbar-btn-ghost" onclick="logout()" title="Выйти"><i class="ti ti-logout"></i></button>
@@ -60,6 +61,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Навигация</div>
       <div class="sidebar-item active" onclick="showView('all')" id="nav-all"><i class="ti ti-users"></i> Персонажи</div>
+      <div class="sidebar-item" onclick="showView('books')" id="nav-books"><i class="ti ti-books"></i> Книги</div>
       <div class="sidebar-item" onclick="showView('worlds')" id="nav-worlds"><i class="ti ti-world"></i> Миры</div>
       <div class="sidebar-item" onclick="showView('relations')" id="nav-relations"><i class="ti ti-topology-star"></i> Карта связей</div>
     </div>
@@ -86,6 +88,10 @@
       <div class="back-btn" onclick="goBack()"><i class="ti ti-arrow-left"></i> Назад</div>
       <div id="detailContent"></div>
     </div>
+
+    <!-- BOOKS -->
+    <div id="view-books" style="display:none"></div>
+    <div id="view-book-detail" style="display:none"></div>
 
     <!-- WORLDS -->
     <div id="view-worlds" style="display:none">
@@ -973,6 +979,105 @@
   </div>
 </div>
 
+<!-- ══ BOOK MODAL ══ -->
+<div id="bookModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'bookModal')">
+  <div class="modal modal-wide">
+    <h2 id="bookModalTitle">Новая книга</h2>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchModalTab('bkbasic',this)">Основное</div>
+      <div class="modal-tab" onclick="switchModalTab('bkplot',this)">Сюжет</div>
+      <div class="modal-tab" onclick="switchModalTab('bktimeline',this)">Хронология</div>
+    </div>
+
+    <div id="mtab-bkbasic">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Название *</label><input type="text" class="form-input" id="bk-title" placeholder="Название книги"></div>
+        <div class="form-group"><label class="form-label">Подзаголовок</label><input type="text" class="form-input" id="bk-subtitle" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Порядок в цикле</label><input type="number" class="form-input" id="bk-book_order" placeholder="1" min="1"></div>
+        <div class="form-group"><label class="form-label">Статус</label>
+          <select class="form-input" id="bk-status">
+            <option value="написана">✅ Написана</option>
+            <option value="в процессе">✏️ В процессе</option>
+            <option value="планируется">💡 Планируется</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Мир</label><select class="form-input" id="bk-world_id"></select></div>
+        <div class="form-group"><label class="form-label">Кол-во глав (план)</label><input type="number" class="form-input" id="bk-total_chapters" placeholder=""></div>
+      </div>
+      <div class="form-group"><label class="form-label">Место действия</label><textarea class="form-input form-textarea" style="min-height:60px" id="bk-setting" placeholder="Где происходит действие..."></textarea></div>
+    </div>
+
+    <div id="mtab-bkplot" style="display:none">
+      <div class="form-group"><label class="form-label">Краткое описание</label><textarea class="form-input form-textarea" id="bk-summary" placeholder="2-3 предложения о книге..."></textarea></div>
+      <div class="form-group"><label class="form-label">Синопсис</label><textarea class="form-input form-textarea" style="min-height:120px" id="bk-synopsis" placeholder="Подробное описание сюжета..."></textarea></div>
+      <div class="form-group"><label class="form-label">Главный конфликт</label><textarea class="form-input form-textarea" id="bk-main_conflict" placeholder=""></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Темы</label><textarea class="form-input form-textarea" style="min-height:60px" id="bk-themes" placeholder="Предательство, взросление, месть..."></textarea></div>
+        <div class="form-group"><label class="form-label">Тон / настроение</label><textarea class="form-input form-textarea" style="min-height:60px" id="bk-tone" placeholder="Мрачное, лиричное, напряжённое..."></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">Заметки автора</label><textarea class="form-input form-textarea" id="bk-notes" placeholder=""></textarea></div>
+    </div>
+
+    <div id="mtab-bktimeline" style="display:none">
+      <div class="notice"><i class="ti ti-info-circle"></i> Укажи хронологию в системе летоисчисления твоего мира — например "год 342" или "начало X века"</div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Начало действия</label><input type="text" class="form-input" id="bk-timeline_start" placeholder="год 342, весна"></div>
+        <div class="form-group"><label class="form-label">Конец действия</label><input type="text" class="form-input" id="bk-timeline_end" placeholder="год 343, зима"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Эпоха / период</label><input type="text" class="form-input" id="bk-era" placeholder="X столетие, начало · Эпоха Железа..."></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('bookModal')">Отмена</button>
+      <button class="btn-save" id="saveBookBtn" onclick="saveBook()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CHAPTER MODAL ══ -->
+<div id="chapterModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'chapterModal')">
+  <div class="modal modal-wide">
+    <h2 id="chapterModalTitle">Новая глава</h2>
+    <input type="hidden" id="ch-book-id">
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchModalTab('chbasic',this)">Глава</div>
+      <div class="modal-tab" onclick="switchModalTab('chchars',this)">Персонажи</div>
+    </div>
+
+    <div id="mtab-chbasic">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Номер главы *</label><input type="number" class="form-input" id="ch-chapter_number" placeholder="1" min="1"></div>
+        <div class="form-group"><label class="form-label">Название главы</label><input type="text" class="form-input" id="ch-title" placeholder=""></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Время действия</label><input type="text" class="form-input" id="ch-timeline" placeholder="год 342, 3-й день весны"></div>
+        <div class="form-group"><label class="form-label">Место действия</label><input type="text" class="form-input" id="ch-location" placeholder="Город Алем, таверна Трёх Лис"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">POV (от чьего лица)</label><input type="text" class="form-input" id="ch-pov" placeholder="Ника / третье лицо"></div>
+        <div class="form-group"><label class="form-label">Настроение главы</label><input type="text" class="form-input" id="ch-mood" placeholder="Напряжённое, лирическое..."></div>
+      </div>
+      <div class="form-group"><label class="form-label">Краткое описание</label><textarea class="form-input form-textarea" id="ch-summary" placeholder="Что происходит в этой главе..."></textarea></div>
+      <div class="form-group"><label class="form-label">Ключевые события</label><textarea class="form-input form-textarea" id="ch-events" placeholder="Список важных событий..."></textarea></div>
+      <div class="form-group"><label class="form-label">Заметки автора</label><textarea class="form-input form-textarea" style="min-height:60px" id="ch-notes" placeholder=""></textarea></div>
+    </div>
+
+    <div id="mtab-chchars" style="display:none">
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">Выбери персонажей и их роль в этой главе</div>
+      <div id="chapterCharPicker" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="hideModal('chapterModal')">Отмена</button>
+      <button class="btn-save" id="saveChapterBtn" onclick="saveChapter()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
 <div id="lightbox" class="lightbox" style="display:none" onclick="closeLightbox()">
   <span class="lightbox-close"><i class="ti ti-x"></i></span>
   <img id="lbImg" src="" alt="">
@@ -990,6 +1095,10 @@
   <button class="mobile-nav-btn active" id="mnav-all" onclick="mobileNav('all')">
     <i class="ti ti-users"></i>
     <span>Персонажи</span>
+  </button>
+  <button class="mobile-nav-btn" id="mnav-books" onclick="mobileNav('books')">
+    <i class="ti ti-books"></i>
+    <span>Книги</span>
   </button>
   <button class="mobile-nav-btn" id="mnav-worlds" onclick="mobileNav('worlds')">
     <i class="ti ti-world"></i>
