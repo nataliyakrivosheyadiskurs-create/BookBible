@@ -36,6 +36,20 @@ const WORLD_FIELDS = ['name','genre','summary','history','geography','magic_syst
 const CHARBOOK_FIELDS = ['book_title','book_order','role','age_at_events','appearance_changes','personality_changes','arc','key_events','relationships_changes','notes'];
 
 let chars = [], images = [], relationships = [], worlds = [], charBooks = [], cities = [];
+let books = [], chapters = [], chapterChars = [];
+let currentBook = null, currentChapter = null;
+let editingBookId = null, editingChapterId = null;
+
+const BOOK_FIELDS = [
+  'title','subtitle','book_order','status','world_id',
+  'timeline_start','timeline_end','era',
+  'summary','synopsis','main_conflict','themes','tone','setting',
+  'total_chapters','notes'
+];
+const CHAPTER_FIELDS = [
+  'chapter_number','title','timeline','location',
+  'summary','events','pov','mood','notes'
+];
 
 const WORLD_EXTENDED_FIELDS = [
   'name','genre','subgenres','mood','main_themes','central_idea','unique_feature',
@@ -131,13 +145,16 @@ document.addEventListener('keydown', e => {
 async function loadAndRender() {
   showView('loading');
   try {
-    const [charsRes, imgsRes, relsRes, worldsRes, charBooksRes, citiesRes] = await Promise.all([
+    const [charsRes, imgsRes, relsRes, worldsRes, charBooksRes, citiesRes, booksRes, chaptersRes, chapterCharsRes] = await Promise.all([
       db.from('characters').select('*').order('created_at'),
       db.from('character_images').select('*').order('created_at'),
       db.from('relationships').select('*'),
       db.from('worlds').select('*').order('created_at'),
       db.from('character_books').select('*').order('book_order'),
-      db.from('world_cities').select('*').order('created_at')
+      db.from('world_cities').select('*').order('created_at'),
+      db.from('books').select('*').order('book_order'),
+      db.from('chapters').select('*').order('chapter_number'),
+      db.from('chapter_characters').select('*')
     ]);
     if (charsRes.error) throw charsRes.error;
     chars = charsRes.data || [];
@@ -146,6 +163,9 @@ async function loadAndRender() {
     worlds = worldsRes.data || [];
     charBooks = charBooksRes.data || [];
     cities = citiesRes.data || [];
+    books = booksRes.data || [];
+    chapters = chaptersRes.data || [];
+    chapterChars = chapterCharsRes.data || [];
     preloadGraphImages();
     showView('all');
     renderSidebar(); renderGrid(); updateBookFilter();
@@ -166,7 +186,7 @@ function getRels(charId) { return relationships.filter(r => r.character_id === c
 function getCharBooks(charId) { return charBooks.filter(b => b.character_id === charId).sort((a,b) => (a.book_order||0)-(b.book_order||0)); }
 
 // ── VIEWS ──
-const ALL_VIEWS = ['loading','all','detail','worlds','world-detail','relations'];
+const ALL_VIEWS = ['loading','all','detail','worlds','world-detail','relations','books','book-detail'];
 function showView(v) {
   ALL_VIEWS.forEach(n => { const el = document.getElementById('view-'+n); if(el) el.style.display='none'; });
   const target = document.getElementById('view-'+v);
@@ -181,6 +201,7 @@ function showView(v) {
   });
   if (v === 'relations') renderRelMap();
   if (v === 'worlds') renderWorlds();
+  if (v === 'books') renderBooks();
 }
 
 function mobileNav(view) {
@@ -1471,6 +1492,426 @@ function buildBookRolesHTML(c, cBooks) {
       <span class="book-role-label" style="color:${col}">${a.role}</span>
     </div>`;
   }).join('')}</div>`;
+}
+
+// ══════════════════════════════
+// BOOKS MODULE
+// ══════════════════════════════
+
+function getBook(id) { return books.find(b => b.id === id); }
+function getBookChapters(bookId) { return chapters.filter(c => c.book_id === bookId).sort((a,b) => a.chapter_number - b.chapter_number); }
+function getChapterChars(chapterId) { return chapterChars.filter(cc => cc.chapter_id === chapterId); }
+function getCharChapters(charId) { return chapterChars.filter(cc => cc.character_id === charId); }
+function getStatusColor(status) {
+  return { 'написана': '#27ae60', 'в процессе': '#e67e22', 'планируется': '#8a7a6e' }[status] || '#8a7a6e';
+}
+
+// ── RENDER BOOKS LIST ──
+function renderBooks() {
+  const el = document.getElementById('view-books');
+  if (!el) return;
+
+  const sorted = [...books].sort((a,b) => (a.book_order||0)-(b.book_order||0));
+
+  el.innerHTML = `
+    <div class="page-header">
+      <div><div class="page-title">Книги</div><div class="page-subtitle">${books.length} книг · хронология цикла</div></div>
+      <button class="topbar-btn" onclick="showAddBookModal()"><i class="ti ti-book-plus"></i> Добавить книгу</button>
+    </div>
+    ${sorted.length === 0 ? `<div class="empty-state"><i class="ti ti-books"></i><p>Книг пока нет. Создайте первую!</p></div>` :
+      `<div class="books-list">${sorted.map(b => renderBookCard(b)).join('')}</div>`
+    }`;
+}
+
+function renderBookCard(b) {
+  const bChapters = getBookChapters(b.id);
+  const allCharIds = [...new Set(bChapters.flatMap(ch => getChapterChars(ch.id).map(cc => cc.character_id)))];
+  const mainCharIds = [...new Set(bChapters.flatMap(ch => getChapterChars(ch.id).filter(cc => cc.role === 'главный').map(cc => cc.character_id)))];
+  const statusColor = getStatusColor(b.status);
+
+  return `<div class="book-card" onclick="openBook('${b.id}')">
+    <div class="book-card-header">
+      <div class="book-number">${b.book_order||'?'}</div>
+      <div style="flex:1">
+        <div class="book-card-title">${b.title}</div>
+        ${b.subtitle ? `<div class="book-card-subtitle">${b.subtitle}</div>` : ''}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+          <span class="book-status" style="color:${statusColor};border-color:${statusColor}40;background:${statusColor}10">${b.status||'в процессе'}</span>
+          ${b.timeline_start||b.timeline_end ? `<span style="font-size:11px;color:var(--ink3)">📅 ${[b.timeline_start,b.timeline_end].filter(Boolean).join(' — ')}</span>` : ''}
+          ${b.era ? `<span style="font-size:11px;color:var(--gold)">${b.era}</span>` : ''}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:12px;color:var(--ink3)">${bChapters.length} глав</div>
+        <div style="font-size:12px;color:var(--ink3)">${allCharIds.length} персонажей</div>
+      </div>
+    </div>
+    ${b.summary ? `<div class="book-card-summary">${b.summary}</div>` : ''}
+    ${allCharIds.length ? `<div class="book-card-chars">${allCharIds.slice(0,8).map(id => {
+      const c = getChar(id);
+      if (!c) return '';
+      const isMain = mainCharIds.includes(id);
+      return `<span class="book-char-badge ${isMain ? 'main' : ''}" title="${c.name}">${c.emoji||c.name[0]}</span>`;
+    }).join('')}${allCharIds.length > 8 ? `<span style="font-size:11px;color:var(--ink3)">+${allCharIds.length-8}</span>` : ''}</div>` : ''}
+  </div>`;
+}
+
+// ── OPEN BOOK ──
+function openBook(id) {
+  currentBook = getBook(id);
+  if (!currentBook) return;
+  showView('book-detail');
+  renderBookDetail();
+}
+
+function renderBookDetail() {
+  const b = currentBook;
+  const bChapters = getBookChapters(b.id);
+  const statusColor = getStatusColor(b.status);
+  const allCharIds = [...new Set(bChapters.flatMap(ch => getChapterChars(ch.id).map(cc => cc.character_id)))];
+
+  const el = document.getElementById('view-book-detail');
+  el.innerHTML = `
+    <div class="back-btn" onclick="showView('books')"><i class="ti ti-arrow-left"></i> Все книги</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div class="book-number" style="width:36px;height:36px;font-size:16px">${b.book_order||'?'}</div>
+          <div class="detail-name" style="font-size:28px">${b.title}</div>
+        </div>
+        ${b.subtitle?`<div style="font-size:14px;color:var(--ink3);margin-left:46px;margin-bottom:4px">${b.subtitle}</div>`:''}
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:46px">
+          <span class="book-status" style="color:${statusColor};border-color:${statusColor}40;background:${statusColor}10">${b.status||''}</span>
+          ${b.era?`<span style="font-size:12px;color:var(--gold);font-weight:500">${b.era}</span>`:''}
+          ${b.timeline_start||b.timeline_end?`<span style="font-size:12px;color:var(--ink3)">📅 ${[b.timeline_start,b.timeline_end].filter(Boolean).join(' — ')}</span>`:''}
+          ${b.world_id?`<span style="font-size:12px;color:var(--ink3)">🌍 ${(getWorld(b.world_id)||{}).name||''}</span>`:''}
+        </div>
+      </div>
+      <div class="action-btns" style="margin-top:0">
+        <button class="btn-edit" onclick="showAddBookModal('${b.id}')"><i class="ti ti-edit"></i> Редактировать</button>
+        <button class="btn-delete" onclick="deleteBook('${b.id}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchBookTab('overview',this)">Обзор</div>
+      <div class="tab" onclick="switchBookTab('chapters',this)">Главы <span class="tab-badge">${bChapters.length}</span></div>
+      <div class="tab" onclick="switchBookTab('cast',this)">Персонажи <span class="tab-badge">${allCharIds.length}</span></div>
+      <div class="tab" onclick="switchBookTab('timeline',this)">Хронология</div>
+    </div>
+
+    <div id="btab-overview">
+      ${b.summary?`<div class="info-block"><h3>Краткое описание</h3><p class="bio-text">${b.summary}</p></div>`:''}
+      ${b.synopsis?`<div class="info-block"><h3>Синопсис</h3><p class="bio-text">${b.synopsis}</p></div>`:''}
+      ${b.main_conflict?`<div class="info-block"><h3>Главный конфликт</h3><p class="bio-text">${b.main_conflict}</p></div>`:''}
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        ${b.themes?`<div class="info-block" style="flex:1;min-width:200px"><h3>Темы</h3><p class="bio-text">${b.themes}</p></div>`:''}
+        ${b.tone?`<div class="info-block" style="flex:1;min-width:200px"><h3>Тон/настроение</h3><p class="bio-text">${b.tone}</p></div>`:''}
+      </div>
+      ${b.setting?`<div class="info-block"><h3>Место действия</h3><p class="bio-text">${b.setting}</p></div>`:''}
+      ${b.notes?`<div class="info-block"><h3>📝 Заметки</h3><p class="bio-text">${b.notes}</p></div>`:''}
+    </div>
+
+    <div id="btab-chapters" style="display:none">
+      <div class="chapters-list" id="chaptersList">
+        ${bChapters.length ? bChapters.map(ch => renderChapterRow(ch)).join('') :
+          '<div style="color:var(--ink3);font-size:13px;padding:1rem 0">Глав пока нет</div>'}
+      </div>
+      <button class="add-rel-btn" style="margin-top:1rem" onclick="showAddChapterModal('${b.id}')">
+        <i class="ti ti-plus"></i> Добавить главу
+      </button>
+    </div>
+
+    <div id="btab-cast" style="display:none">
+      ${renderBookCast(b.id, bChapters)}
+    </div>
+
+    <div id="btab-timeline" style="display:none">
+      ${renderBookTimeline(bChapters)}
+    </div>`;
+}
+
+function switchBookTab(name, el) {
+  ['overview','chapters','cast','timeline'].forEach(t => {
+    const e = document.getElementById('btab-'+t); if(e) e.style.display = t===name?'block':'none';
+  });
+  document.querySelectorAll('#view-book-detail .tabs .tab').forEach(t => t.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function renderChapterRow(ch) {
+  const ccs = getChapterChars(ch.id);
+  const mainChar = ccs.find(cc => cc.role === 'главный');
+  const povChar = ch.pov ? chars.find(c => c.name.toLowerCase().includes(ch.pov.toLowerCase())) : null;
+  return `<div class="chapter-row">
+    <div class="chapter-num">${ch.chapter_number}</div>
+    <div class="chapter-body" onclick="openChapter('${ch.id}')">
+      <div class="chapter-title">${ch.title || 'Глава '+ch.chapter_number}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:3px">
+        ${ch.timeline?`<span style="font-size:11px;color:var(--gold)">📅 ${ch.timeline}</span>`:''}
+        ${ch.location?`<span style="font-size:11px;color:var(--ink3)">📍 ${ch.location}</span>`:''}
+        ${ch.pov?`<span style="font-size:11px;color:var(--ink3)">👁 POV: ${ch.pov}</span>`:''}
+        ${ch.mood?`<span style="font-size:11px;color:var(--ink3)">${ch.mood}</span>`:''}
+      </div>
+      ${ch.summary?`<div style="font-size:12.5px;color:var(--ink3);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${ch.summary}</div>`:''}
+      ${ccs.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${ccs.map(cc=>{
+        const c=getChar(cc.character_id);if(!c)return '';
+        return `<span class="book-char-badge ${cc.role==='главный'?'main':''}" title="${c.name}·${cc.role}">${c.emoji||c.name[0]}</span>`;
+      }).join('')}</div>`:''}
+    </div>
+    <div style="display:flex;gap:4px;flex-shrink:0">
+      <button onclick="openChapter('${ch.id}')" style="background:none;border:0.5px solid var(--parch3);color:var(--ink3);padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px"><i class="ti ti-edit"></i></button>
+      <button onclick="deleteChapter('${ch.id}')" style="background:none;border:0.5px solid var(--parch3);color:var(--ink3);padding:5px 8px;border-radius:6px;cursor:pointer;font-size:12px"><i class="ti ti-trash"></i></button>
+    </div>
+  </div>`;
+}
+
+function renderBookCast(bookId, bChapters) {
+  const charAppearances = {};
+  bChapters.forEach(ch => {
+    getChapterChars(ch.id).forEach(cc => {
+      if (!charAppearances[cc.character_id]) charAppearances[cc.character_id] = { roles: new Set(), chapters: [], notes: [] };
+      charAppearances[cc.character_id].roles.add(cc.role);
+      charAppearances[cc.character_id].chapters.push(ch.chapter_number);
+      if (cc.notes) charAppearances[cc.character_id].notes.push(`Гл.${ch.chapter_number}: ${cc.notes}`);
+    });
+  });
+
+  const sorted = Object.entries(charAppearances).sort(([,a],[,b]) => {
+    const priority = r => r.has('главный')?0:r.has('второстепенный')?1:r.has('присутствует')?2:3;
+    return priority(a.roles) - priority(b.roles);
+  });
+
+  if (!sorted.length) return '<div style="color:var(--ink3);font-size:13px;padding:1rem 0">Персонажи не назначены ни в одну главу</div>';
+
+  return `<div style="display:flex;flex-direction:column;gap:10px">${sorted.map(([charId, data]) => {
+    const c = getChar(charId); if(!c) return '';
+    const topRole = data.roles.has('главный')?'главный':data.roles.has('второстепенный')?'второстепенный':data.roles.has('присутствует')?'присутствует':'упоминается';
+    const col = colorFor(c);
+    return `<div class="rel-item-v2" style="cursor:pointer" onclick="openChar('${c.id}')">
+      <div class="rel-item-header">
+        <div class="rel-avatar" style="background:${col}22;color:${col}">${c.emoji||initials(c.name)}</div>
+        <div class="rel-info">
+          <div class="rel-name">${c.name}${c.family?` <span style="font-size:11px;color:var(--ink3)">${c.family}</span>`:''}</div>
+          <div style="display:flex;gap:6px;margin-top:2px;flex-wrap:wrap">
+            <span class="rel-badge" style="background:${col}18;color:${col}">${topRole}</span>
+            <span style="font-size:11px;color:var(--ink3)">Главы: ${data.chapters.sort((a,b)=>a-b).join(', ')}</span>
+          </div>
+        </div>
+      </div>
+      ${data.notes.length?`<div style="font-size:12px;color:var(--ink3);margin-top:6px;padding-top:6px;border-top:0.5px solid var(--parch3)">${data.notes.join(' | ')}</div>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderBookTimeline(bChapters) {
+  const withTime = bChapters.filter(ch => ch.timeline);
+  if (!withTime.length) return '<div style="color:var(--ink3);font-size:13px;padding:1rem 0">Время действия не указано ни в одной главе. Добавьте поле "Время действия" при создании глав.</div>';
+  return `<div class="timeline-list">${bChapters.map(ch => {
+    const ccs = getChapterChars(ch.id);
+    return `<div class="timeline-row">
+      <div class="timeline-time">${ch.timeline||'—'}</div>
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <div style="font-weight:500;font-size:14px">${ch.title||'Глава '+ch.chapter_number}</div>
+        ${ch.location?`<div style="font-size:12px;color:var(--ink3)">📍 ${ch.location}</div>`:''}
+        ${ch.summary?`<div style="font-size:12.5px;color:var(--ink2);margin-top:4px">${ch.summary}</div>`:''}
+        ${ccs.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px">${ccs.map(cc=>{const c=getChar(cc.character_id);return c?`<span class="book-char-badge ${cc.role==='главный'?'main':''}">${c.emoji||c.name[0]}</span>`:''}).join('')}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── BOOK MODAL ──
+function showAddBookModal(bookId) {
+  editingBookId = bookId || null;
+  const b = bookId ? getBook(bookId) : null;
+  document.getElementById('bookModalTitle').textContent = bookId ? 'Редактировать книгу' : 'Новая книга';
+  BOOK_FIELDS.forEach(f => {
+    const el = document.getElementById('bk-'+f);
+    if (!el) return;
+    if (f === 'world_id') {
+      el.innerHTML = '<option value="">— не привязана —</option>' + worlds.map(w=>`<option value="${w.id}" ${b&&b.world_id===w.id?'selected':''}>${w.name}</option>`).join('');
+    } else {
+      el.value = b ? (b[f]||'') : '';
+    }
+  });
+  if (!b) {
+    document.getElementById('bk-book_order').value = books.length + 1;
+    document.getElementById('bk-status').value = 'в процессе';
+  }
+  document.getElementById('bookModal').style.display = 'flex';
+}
+
+async function saveBook() {
+  const title = document.getElementById('bk-title').value.trim();
+  if (!title) { showToast('Введи название книги'); return; }
+  const btn = document.getElementById('saveBookBtn');
+  btn.disabled = true;
+  const data = {};
+  BOOK_FIELDS.forEach(f => { const el = document.getElementById('bk-'+f); if(el) data[f] = el.value; });
+  data.book_order = parseInt(data.book_order) || 1;
+  data.total_chapters = parseInt(data.total_chapters) || null;
+  try {
+    if (editingBookId) {
+      const { error } = await db.from('books').update(data).eq('id', editingBookId);
+      if (error) throw error;
+      const idx = books.findIndex(b=>b.id===editingBookId);
+      if (idx>=0) books[idx] = {...books[idx],...data};
+      currentBook = getBook(editingBookId);
+      hideModal('bookModal');
+      renderBookDetail();
+    } else {
+      const { data: newBook, error } = await db.from('books').insert(data).select().single();
+      if (error) throw error;
+      books.push(newBook);
+      hideModal('bookModal');
+      renderBooks();
+    }
+    showToast(editingBookId ? 'Книга обновлена' : 'Книга добавлена');
+    updateBookFilter();
+  } catch(e) { console.error(e); showToast('Ошибка: '+(e.message||'')); }
+  finally { btn.disabled = false; editingBookId = null; }
+}
+
+async function deleteBook(id) {
+  if (!confirm('Удалить книгу и все её главы?')) return;
+  try {
+    await db.from('books').delete().eq('id', id);
+    books = books.filter(b=>b.id!==id);
+    chapters = chapters.filter(ch=>ch.book_id!==id);
+    showView('books');
+    showToast('Книга удалена');
+  } catch(e) { showToast('Ошибка'); }
+}
+
+// ── CHAPTER MODAL ──
+function openChapter(chapterId) {
+  currentChapter = chapters.find(ch=>ch.id===chapterId);
+  if (!currentChapter) return;
+  showChapterModal(currentChapter.book_id, chapterId);
+}
+
+function showAddChapterModal(bookId) {
+  editingChapterId = null;
+  document.getElementById('chapterModalTitle').textContent = 'Новая глава';
+  document.getElementById('ch-book-id').value = bookId;
+  const bChaps = getBookChapters(bookId);
+  CHAPTER_FIELDS.forEach(f => { const el=document.getElementById('ch-'+f); if(el) el.value=''; });
+  document.getElementById('ch-chapter_number').value = bChaps.length + 1;
+  renderChapterCharPicker(bookId, null);
+  document.getElementById('chapterModal').style.display = 'flex';
+}
+
+function showChapterModal(bookId, chapterId) {
+  editingChapterId = chapterId;
+  const ch = chapters.find(c=>c.id===chapterId);
+  document.getElementById('chapterModalTitle').textContent = 'Редактировать главу';
+  document.getElementById('ch-book-id').value = bookId;
+  CHAPTER_FIELDS.forEach(f => { const el=document.getElementById('ch-'+f); if(el) el.value=ch?ch[f]||'':''; });
+  renderChapterCharPicker(bookId, chapterId);
+  document.getElementById('chapterModal').style.display = 'flex';
+}
+
+function renderChapterCharPicker(bookId, chapterId) {
+  const existing = chapterId ? getChapterChars(chapterId) : [];
+  const container = document.getElementById('chapterCharPicker');
+  if (!container) return;
+  container.innerHTML = chars.map(c => {
+    const cc = existing.find(e=>e.character_id===c.id);
+    const col = colorFor(c);
+    return `<div class="char-picker-row" id="ccrow-${c.id}">
+      <div class="rel-avatar" style="background:${col}22;color:${col};width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">${c.emoji||initials(c.name)}</div>
+      <div style="flex:1;font-size:13px">${c.name}</div>
+      <select class="form-input" id="cc-role-${c.id}" style="width:130px;padding:4px 6px;font-size:12px">
+        <option value="">— нет в главе —</option>
+        <option value="главный" ${cc&&cc.role==='главный'?'selected':''}>★ Главный</option>
+        <option value="второстепенный" ${cc&&cc.role==='второстепенный'?'selected':''}>Второстепенный</option>
+        <option value="присутствует" ${cc&&cc.role==='присутствует'?'selected':''}>Присутствует</option>
+        <option value="упоминается" ${cc&&cc.role==='упоминается'?'selected':''}>Упоминается</option>
+      </select>
+      <input type="text" class="form-input" id="cc-note-${c.id}" style="width:140px;padding:4px 8px;font-size:12px" placeholder="Что делает..." value="${cc?cc.notes||'':''}">
+    </div>`;
+  }).join('');
+}
+
+async function saveChapter() {
+  const bookId = document.getElementById('ch-book-id').value;
+  const num = parseInt(document.getElementById('ch-chapter_number').value);
+  if (!num) { showToast('Укажи номер главы'); return; }
+  const btn = document.getElementById('saveChapterBtn');
+  btn.disabled = true;
+  const data = { book_id: bookId };
+  CHAPTER_FIELDS.forEach(f => { const el=document.getElementById('ch-'+f); if(el) data[f]=el.value; });
+  data.chapter_number = num;
+  try {
+    let chapterId = editingChapterId;
+    if (editingChapterId) {
+      const { error } = await db.from('chapters').update(data).eq('id', editingChapterId);
+      if (error) throw error;
+      const idx = chapters.findIndex(c=>c.id===editingChapterId);
+      if (idx>=0) chapters[idx] = {...chapters[idx],...data};
+    } else {
+      const { data: newCh, error } = await db.from('chapters').insert(data).select().single();
+      if (error) throw error;
+      chapters.push(newCh);
+      chapterId = newCh.id;
+    }
+
+    // Save character assignments
+    // Delete existing
+    await db.from('chapter_characters').delete().eq('chapter_id', chapterId);
+    chapterChars = chapterChars.filter(cc=>cc.chapter_id!==chapterId);
+
+    // Insert new
+    const inserts = [];
+    chars.forEach(c => {
+      const role = document.getElementById(`cc-role-${c.id}`)?.value;
+      const notes = document.getElementById(`cc-note-${c.id}`)?.value;
+      if (role) inserts.push({ chapter_id: chapterId, character_id: c.id, role, notes });
+    });
+    if (inserts.length) {
+      const { data: newCCs, error } = await db.from('chapter_characters').insert(inserts).select();
+      if (error) throw error;
+      chapterChars.push(...(newCCs||[]));
+    }
+
+    hideModal('chapterModal');
+    currentBook = getBook(bookId);
+    renderBookDetail();
+    showToast(editingChapterId ? 'Глава обновлена' : 'Глава добавлена');
+  } catch(e) { console.error(e); showToast('Ошибка: '+(e.message||'')); }
+  finally { btn.disabled=false; editingChapterId=null; }
+}
+
+async function deleteChapter(id) {
+  if (!confirm('Удалить главу?')) return;
+  try {
+    await db.from('chapters').delete().eq('id', id);
+    const ch = chapters.find(c=>c.id===id);
+    chapters = chapters.filter(c=>c.id!==id);
+    chapterChars = chapterChars.filter(cc=>cc.chapter_id!==id);
+    if (currentBook) renderBookDetail();
+    showToast('Глава удалена');
+  } catch(e) { showToast('Ошибка'); }
+}
+
+// ── BOOKS IN CHAR DETAIL ──
+// Update renderDetail to show books data from books module
+function getCharBooksFromModule(charId) {
+  const appearances = {};
+  chapters.forEach(ch => {
+    const cc = chapterChars.find(c => c.chapter_id===ch.id && c.character_id===charId);
+    if (!cc) return;
+    const book = books.find(b=>b.id===ch.book_id);
+    if (!book) return;
+    if (!appearances[book.id]) appearances[book.id] = { book, role: cc.role, chapters: [], roles: new Set() };
+    appearances[book.id].chapters.push(ch.chapter_number);
+    appearances[book.id].roles.add(cc.role);
+    if (cc.role==='главный') appearances[book.id].role = 'главный';
+    else if (cc.role==='второстепенный' && appearances[book.id].role!=='главный') appearances[book.id].role='второстепенный';
+  });
+  return Object.values(appearances).sort((a,b)=>(a.book.book_order||0)-(b.book.book_order||0));
 }
 
 init();
