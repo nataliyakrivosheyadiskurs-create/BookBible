@@ -1276,3 +1276,101 @@ body {
 
 /* Нижняя навигация — скрыта на десктопе */
 .mobile-nav { display: none; }
+
+/* ══════════════════════════════
+   BOOKS MODULE
+   ══════════════════════════════ */
+
+/* Book card list */
+.books-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.book-card {
+  background: var(--parch);
+  border: 0.5px solid var(--parch3);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.book-card:hover { box-shadow: 0 4px 20px var(--shadow); border-color: var(--parch4); transform: translateY(-1px); }
+
+.book-card-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+.book-number {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--ink); color: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 500;
+  flex-shrink: 0;
+}
+.book-card-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; }
+.book-card-subtitle { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+.book-status {
+  font-size: 10.5px; padding: 2px 8px; border-radius: 20px;
+  border: 0.5px solid; font-weight: 500; letter-spacing: 0.03em;
+}
+.book-card-summary {
+  font-family: 'Cormorant Garamond', serif; font-size: 14.5px; line-height: 1.6;
+  color: var(--ink2); margin-bottom: 10px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.book-card-chars { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.book-char-badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--parch2); border: 0.5px solid var(--parch3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: default;
+}
+.book-char-badge.main { background: var(--accent); border-color: var(--accent); }
+
+/* Chapter row */
+.chapters-list { display: flex; flex-direction: column; gap: 8px; }
+.chapter-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 12px; background: var(--parch2);
+  border-radius: 8px; border: 0.5px solid var(--parch3);
+}
+.chapter-num {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--parch3); color: var(--ink3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; flex-shrink: 0;
+}
+.chapter-body { flex: 1; cursor: pointer; }
+.chapter-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+
+/* Timeline */
+.timeline-list { display: flex; flex-direction: column; gap: 0; padding-left: 1rem; }
+.timeline-row {
+  display: grid; grid-template-columns: 160px 20px 1fr;
+  gap: 0 12px; padding: 12px 0;
+  border-left: 2px solid var(--parch3);
+  margin-left: 80px; padding-left: 20px; position: relative;
+}
+.timeline-time {
+  position: absolute; left: -160px; width: 140px;
+  text-align: right; font-size: 11.5px; color: var(--gold);
+  font-weight: 500; padding-top: 2px;
+}
+.timeline-dot {
+  position: absolute; left: -7px; top: 16px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--gold); border: 2px solid var(--parch);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+.timeline-content { padding-left: 8px; }
+
+/* Char picker in chapter modal */
+.char-picker-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; background: var(--parch2);
+  border-radius: 8px; border: 0.5px solid var(--parch3);
+}
+
+@media (max-width: 768px) {
+  .timeline-row { grid-template-columns: 1fr; margin-left: 0; padding-left: 12px; }
+  .timeline-time { position: static; text-align: left; width: auto; }
+  .timeline-dot { display: none; }
+  .char-picker-row { flex-wrap: wrap; }
+  .char-picker-row select, .char-picker-row input { width: 100% !important; }
+}
