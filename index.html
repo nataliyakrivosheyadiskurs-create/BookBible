@@ -948,33 +948,64 @@
 
 <!-- EXPORT MODAL -->
 <div id="exportModal" class="modal-bg" style="display:none" onclick="closeModalBg(event,'exportModal')">
-  <div class="modal" style="max-width:420px">
-    <h2>Экспорт в PDF</h2>
+  <div class="modal" style="max-width:460px">
+    <h2>Экспорт данных</h2>
     <div class="form-group">
       <label class="form-label">Что экспортировать</label>
       <select class="form-input" id="export-char-select">
         <option value="all">Все персонажи</option>
       </select>
     </div>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
-        <input type="checkbox" id="export-include-images" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-        <div>
-          <label for="export-include-images" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить изображения</label>
-          <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Каждое фото — отдельный лист с подписью</div>
+
+    <div class="form-label" style="margin-bottom:8px">Формат</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem">
+      <button class="export-format-btn active" data-fmt="pdf" onclick="selectExportFmt('pdf',this)">
+        <i class="ti ti-file-type-pdf"></i>
+        <div class="export-fmt-name">PDF</div>
+        <div class="export-fmt-desc">Красивый документ с фото</div>
+      </button>
+      <button class="export-format-btn" data-fmt="excel" onclick="selectExportFmt('excel',this)">
+        <i class="ti ti-file-spreadsheet"></i>
+        <div class="export-fmt-name">Excel (.xlsx)</div>
+        <div class="export-fmt-desc">6 листов: персонажи, внешность, характер, связи, книги, главы</div>
+      </button>
+      <button class="export-format-btn" data-fmt="csv" onclick="selectExportFmt('csv',this)">
+        <i class="ti ti-file-text"></i>
+        <div class="export-fmt-name">CSV</div>
+        <div class="export-fmt-desc">Для Google Sheets и других таблиц</div>
+      </button>
+      <button class="export-format-btn" data-fmt="json" onclick="selectExportFmt('json',this)">
+        <i class="ti ti-braces"></i>
+        <div class="export-fmt-name">JSON</div>
+        <div class="export-fmt-desc">Полные данные для разработчиков и AI</div>
+      </button>
+    </div>
+
+    <div id="pdf-options">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
+          <input type="checkbox" id="export-include-images" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+          <div>
+            <label for="export-include-images" style="font-size:13px;color:var(--ink);cursor:pointer;display:block">Включить изображения</label>
+            <div style="font-size:11px;color:var(--ink3);margin-top:1px">Каждое фото — отдельный лист с подписью</div>
+          </div>
         </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
-        <input type="checkbox" id="export-include-world" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
-        <div>
-          <label for="export-include-world" style="font-size:13.5px;color:var(--ink);cursor:pointer;display:block">Включить раздел Мир</label>
-          <div style="font-size:11.5px;color:var(--ink3);margin-top:2px">Миры, города, история, магия</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--parch2);border-radius:8px;border:0.5px solid var(--parch3)">
+          <input type="checkbox" id="export-include-world" checked style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer">
+          <div>
+            <label for="export-include-world" style="font-size:13px;color:var(--ink);cursor:pointer;display:block">Включить раздел Мир</label>
+            <div style="font-size:11px;color:var(--ink3);margin-top:1px">Миры, города, история, магия</div>
+          </div>
         </div>
       </div>
     </div>
+
     <div class="modal-actions">
       <button class="btn-cancel" onclick="hideModal('exportModal')">Отмена</button>
-      <button class="btn-save" onclick="startExport()"><i class="ti ti-file-type-pdf"></i> Создать PDF</button>
+      <button class="btn-save" id="doExportBtn" onclick="doExport()">
+        <i class="ti ti-file-type-pdf" id="exportBtnIcon"></i>
+        <span id="exportBtnLabel">Создать PDF</span>
+      </button>
     </div>
   </div>
 </div>
