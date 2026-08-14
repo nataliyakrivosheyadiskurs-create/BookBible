@@ -1,14 +1,43 @@
 // =============================================
-// Character Bible — PDF Export v4
-// Полные данные: связи, мир, города
+// EXPORT FORMAT SELECTOR
 // =============================================
+
+let currentExportFmt = 'pdf';
 
 function showExportModal() {
   const sel = document.getElementById('export-char-select');
   sel.innerHTML = '<option value="all">Все персонажи</option>' +
     chars.map(c => `<option value="${c.id}">${c.emoji||'👤'} ${c.name}</option>`).join('');
+  selectExportFmt('pdf', document.querySelector('.export-format-btn[data-fmt="pdf"]'));
   document.getElementById('exportModal').style.display = 'flex';
 }
+
+function selectExportFmt(fmt, btn) {
+  currentExportFmt = fmt;
+  document.querySelectorAll('.export-format-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  const pdfOpts = document.getElementById('pdf-options');
+  if (pdfOpts) pdfOpts.style.display = fmt === 'pdf' ? 'block' : 'none';
+
+  const icons = { pdf:'ti-file-type-pdf', excel:'ti-file-spreadsheet', csv:'ti-file-text', json:'ti-braces' };
+  const labels = { pdf:'Создать PDF', excel:'Скачать Excel', csv:'Скачать CSV', json:'Скачать JSON' };
+  const iconEl = document.getElementById('exportBtnIcon');
+  const labelEl = document.getElementById('exportBtnLabel');
+  if (iconEl) iconEl.className = 'ti ' + (icons[fmt]||'ti-download');
+  if (labelEl) labelEl.textContent = labels[fmt]||'Скачать';
+}
+
+function doExport() {
+  if (currentExportFmt === 'pdf') startExport();
+  else if (currentExportFmt === 'excel') exportExcel();
+  else if (currentExportFmt === 'csv') exportCSV();
+  else if (currentExportFmt === 'json') exportJSON();
+}
+
+// =============================================
+// Character Bible — PDF Export v4
+// =============================================
 
 async function startExport() {
   const charId = document.getElementById('export-char-select').value;
@@ -420,5 +449,300 @@ async function urlToBase64(url) {
     reader.onloadend = () => res(reader.result);
     reader.onerror = rej;
     reader.readAsDataURL(blob);
+  });
+}
+
+// =============================================
+// ЭКСПОРТ В JSON
+// =============================================
+
+function exportJSON() {
+  const charId = document.getElementById('export-char-select').value;
+  const exportChars = charId === 'all' ? chars : chars.filter(c => c.id === charId);
+  hideModal('exportModal');
+
+  const data = {
+    exported_at: new Date().toISOString(),
+    characters: exportChars.map(c => ({
+      ...c,
+      images: getImages(c.id).map(img => ({
+        emotion: img.emotion,
+        period: img.period,
+        comment: img.comment,
+        url: img.url
+      })),
+      relationships: getRels(c.id).map(r => {
+        const target = getChar(r.target_id);
+        return {
+          target_name: target ? target.name : '',
+          target_id: r.target_id,
+          type: r.type,
+          intensity: r.intensity,
+          description: r.description,
+          how_they_met: r.how_they_met,
+          dynamic: r.dynamic,
+          conflicts: r.conflicts,
+          secrets: r.secrets,
+          history: r.history,
+          current_status: r.current_status
+        };
+      }),
+      books_timeline: getCharBooks(c.id).map(b => ({
+        book_title: b.book_title,
+        book_order: b.book_order,
+        role: b.role,
+        age_at_events: b.age_at_events,
+        appearance_changes: b.appearance_changes,
+        personality_changes: b.personality_changes,
+        arc: b.arc,
+        key_events: b.key_events,
+        relationships_changes: b.relationships_changes,
+        notes: b.notes
+      }))
+    })),
+    worlds: worlds.map(w => ({
+      ...w,
+      cities: cities.filter(c => c.world_id === w.id)
+    })),
+    books: books.map(b => ({
+      ...b,
+      chapters: getBookChapters(b.id).map(ch => ({
+        ...ch,
+        characters: getChapterChars(ch.id).map(cc => {
+          const c = getChar(cc.character_id);
+          return { character_name: c ? c.name : '', role: cc.role, notes: cc.notes };
+        })
+      }))
+    }))
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, `character-bible-${dateStr()}.json`);
+  showToast('JSON скачан!');
+}
+
+// =============================================
+// ЭКСПОРТ В CSV
+// =============================================
+
+function exportCSV() {
+  const charId = document.getElementById('export-char-select').value;
+  const exportChars = charId === 'all' ? chars : chars.filter(c => c.id === charId);
+  hideModal('exportModal');
+
+  // Персонажи
+  const charHeaders = [
+    'Имя','Прозвище','Роль','Тип','Пол','Дата рождения','Дата смерти',
+    'Семья','Поколение','Книга','Рост','Телосложение','Волосы','Глаза',
+    'Кожа','Голос','Характер','Три слова','Мотивация','Страхи','Желания',
+    'Сильные стороны','Слабые стороны','Тайна','Парадоксы','Биография',
+    'Предыстория','Арка','Заметки'
+  ];
+  const charRows = exportChars.map(c => [
+    c.name, c.nickname, c.role, c.char_type==='secondary'?'Второстепенный':'Главный',
+    c.gender, c.birth_date, c.death_date, c.family, c.generation, c.book,
+    c.height, c.body_type, c.hair, c.eyes, c.skin, c.voice,
+    c.personality, c.personality_words, c.motivation, c.fears, c.desires,
+    c.strengths, c.weaknesses, c.secret, c.paradoxes,
+    c.bio, c.backstory, c.arc, c.notes
+  ]);
+
+  // Связи
+  const relHeaders = ['Персонаж 1','Персонаж 2','Тип','Интенсивность','Описание','Как познакомились','Динамика','Конфликты','Тайны','История','Статус'];
+  const relRows = [];
+  exportChars.forEach(c => {
+    getRels(c.id).forEach(r => {
+      const t = getChar(r.target_id);
+      relRows.push([c.name, t?t.name:'', r.type, r.intensity, r.description, r.how_they_met, r.dynamic, r.conflicts, r.secrets, r.history, r.current_status]);
+    });
+  });
+
+  // Книги по персонажам
+  const bookHeaders = ['Персонаж','Книга','Порядок','Роль','Возраст','Изменения внешности','Изменения характера','Арка','Ключевые события','Заметки'];
+  const bookRows = [];
+  exportChars.forEach(c => {
+    getCharBooks(c.id).forEach(b => {
+      bookRows.push([c.name, b.book_title, b.book_order, b.role, b.age_at_events, b.appearance_changes, b.personality_changes, b.arc, b.key_events, b.notes]);
+    });
+  });
+
+  // Собираем в один CSV с разделителями секций
+  let csv = 'ПЕРСОНАЖИ\n';
+  csv += buildCSV(charHeaders, charRows);
+  csv += '\n\nСВЯЗИ\n';
+  csv += buildCSV(relHeaders, relRows);
+  csv += '\n\nПЕРСОНАЖИ ПО КНИГАМ\n';
+  csv += buildCSV(bookHeaders, bookRows);
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }); // BOM для Excel
+  downloadBlob(blob, `character-bible-${dateStr()}.csv`);
+  showToast('CSV скачан! Открой в Excel');
+}
+
+// =============================================
+// ЭКСПОРТ В EXCEL (xlsx через библиотеку)
+// =============================================
+
+async function exportExcel() {
+  const charId = document.getElementById('export-char-select').value;
+  const exportChars = charId === 'all' ? chars : chars.filter(c => c.id === charId);
+  hideModal('exportModal');
+  showToast('Подготовка Excel...');
+
+  // Загружаем SheetJS если не загружен
+  if (typeof XLSX === 'undefined') {
+    await loadScript('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Лист 1: Персонажи ──
+  const charData = [
+    ['Имя','Прозвище','Роль','Тип','Семья','Поколение','Пол','Дата рождения','Дата смерти',
+     'Книга','Рост','Телосложение','Волосы','Глаза','Кожа','Голос',
+     'Три слова','Характер','Темперамент','Интроверт/экстраверт',
+     'Сильные стороны','Слабые стороны','Страхи','Желания','Мотивация',
+     'Тайна','Парадоксы','Биография','Предыстория','Арка','Заметки']
+  ];
+  exportChars.forEach(c => charData.push([
+    c.name, c.nickname, c.role, c.char_type==='secondary'?'Второстепенный':'Главный',
+    c.family, c.generation, c.gender, c.birth_date, c.death_date, c.book,
+    c.height, c.body_type, c.hair, c.eyes, c.skin, c.voice,
+    c.personality_words, c.personality, c.temperament, c.introvert,
+    c.strengths, c.weaknesses, c.fears, c.desires, c.motivation,
+    c.secret, c.paradoxes, c.bio, c.backstory, c.arc, c.notes
+  ]));
+  const wsChars = XLSX.utils.aoa_to_sheet(charData);
+  styleSheet(wsChars, charData[0].length);
+  XLSX.utils.book_append_sheet(wb, wsChars, 'Персонажи');
+
+  // ── Лист 2: Внешность ──
+  const appData = [
+    ['Имя','Рост','Телосложение','Сила (впечатление)','Осанка','Походка','Правша/левша',
+     'Форма лица','Лоб','Скулы','Подбородок','Челюсть',
+     'Цвет глаз','Форма глаз','Взгляд','Ресницы/брови',
+     'Нос','Губы','Уши','Шея','Руки',
+     'Оттенок кожи','Загар/веснушки','Особые приметы',
+     'Цвет волос','Текстура волос','Причёска',
+     'Голос','Стиль одежды','Аксессуары','Предметы','Цветовая палитра',
+     'Манера держаться','Первое впечатление','Что делает узнаваемым','Описание']
+  ];
+  exportChars.forEach(c => appData.push([
+    c.name, c.height, c.body_type, c.build_strength, c.posture, c.gait, c.handedness,
+    c.face_shape, c.forehead, c.cheekbones, c.chin, c.jaw,
+    c.eyes, c.eye_shape, c.gaze, c.brows_lashes,
+    c.nose, c.lips, c.ears, c.neck, c.hands,
+    c.skin, c.skin_tan, c.distinctive_marks,
+    c.hair, c.hair_texture, c.hairstyle,
+    c.voice, c.style, c.accessories, c.personal_items, c.color_palette,
+    c.mannerisms, c.first_impression, c.signature_feature, c.appearance
+  ]));
+  const wsApp = XLSX.utils.aoa_to_sheet(appData);
+  styleSheet(wsApp, appData[0].length);
+  XLSX.utils.book_append_sheet(wb, wsApp, 'Внешность');
+
+  // ── Лист 3: Характер ──
+  const charDetails = [
+    ['Имя','Три слова','Не подходит','Темперамент','Интроверт/экстраверт','Приоритет',
+     'Шкалы','Самооценка','Гл. достоинство','Гл. недостаток',
+     'Мировоззрение','Что непростительно','Моральные границы',
+     'Страхи','Желания','Мотивация','Сильные стороны','Слабые стороны',
+     'Общение','Дружба','Конфликты','Лидерство','Интеллект','Мышление',
+     'Речь','Юмор','Привычки','Реакция на стресс','Тайна',
+     'Парадоксы','Внутр. противоречия','Как воспринимают',
+     'Когда никто не видит','Счастливая память','Болезненная память','Сожаления']
+  ];
+  exportChars.forEach(c => charDetails.push([
+    c.name, c.personality_words, c.personality_not, c.temperament, c.introvert, c.core_priority,
+    c.personality_scales, c.self_esteem, c.self_strength, c.self_weakness,
+    c.worldview, c.unforgivable, c.moral_limits,
+    c.fears, c.desires, c.motivation, c.strengths, c.weaknesses,
+    c.social, c.friendship, c.conflict_style, c.leadership, c.intellect, c.thinking_style,
+    c.speech_style, c.humor, c.habits, c.stress_response, c.secret,
+    c.paradoxes, c.inner_conflicts, c.perception,
+    c.alone_behavior, c.happiest_memory, c.painful_memory, c.regrets
+  ]));
+  const wsChar = XLSX.utils.aoa_to_sheet(charDetails);
+  styleSheet(wsChar, charDetails[0].length);
+  XLSX.utils.book_append_sheet(wb, wsChar, 'Характер');
+
+  // ── Лист 4: Связи ──
+  const relData = [['Персонаж 1','Персонаж 2','Тип','Интенсивность','Описание','Как познакомились','Динамика','Конфликты','Тайны','История отношений','Текущий статус']];
+  exportChars.forEach(c => {
+    getRels(c.id).forEach(r => {
+      const t = getChar(r.target_id);
+      relData.push([c.name, t?t.name:'', r.type, r.intensity, r.description, r.how_they_met, r.dynamic, r.conflicts, r.secrets, r.history, r.current_status]);
+    });
+  });
+  const wsRel = XLSX.utils.aoa_to_sheet(relData);
+  styleSheet(wsRel, relData[0].length);
+  XLSX.utils.book_append_sheet(wb, wsRel, 'Связи');
+
+  // ── Лист 5: По книгам ──
+  const booksData = [['Персонаж','Книга','Порядок','Роль','Возраст','Изменения внешности','Изменения характера','Арка','Ключевые события','Изменения в отношениях','Заметки']];
+  exportChars.forEach(c => {
+    getCharBooks(c.id).forEach(b => {
+      booksData.push([c.name, b.book_title, b.book_order, b.role, b.age_at_events, b.appearance_changes, b.personality_changes, b.arc, b.key_events, b.relationships_changes, b.notes]);
+    });
+  });
+  const wsBooks = XLSX.utils.aoa_to_sheet(booksData);
+  styleSheet(wsBooks, booksData[0].length);
+  XLSX.utils.book_append_sheet(wb, wsBooks, 'По книгам');
+
+  // ── Лист 6: Главы книг ──
+  if (books.length) {
+    const chapData = [['Книга','Порядок','Глава №','Название главы','Время действия','Место','POV','Настроение','Краткое описание','Ключевые события','Персонажи в главе']];
+    books.sort((a,b)=>(a.book_order||0)-(b.book_order||0)).forEach(book => {
+      getBookChapters(book.id).forEach(ch => {
+        const charList = getChapterChars(ch.id).map(cc => {
+          const c = getChar(cc.character_id);
+          return c ? `${c.name} (${cc.role})` : '';
+        }).filter(Boolean).join(', ');
+        chapData.push([book.title, book.book_order, ch.chapter_number, ch.title, ch.timeline, ch.location, ch.pov, ch.mood, ch.summary, ch.events, charList]);
+      });
+    });
+    const wsChap = XLSX.utils.aoa_to_sheet(chapData);
+    styleSheet(wsChap, chapData[0].length);
+    XLSX.utils.book_append_sheet(wb, wsChap, 'Главы');
+  }
+
+  XLSX.writeFile(wb, `character-bible-${dateStr()}.xlsx`);
+  showToast('Excel скачан!');
+}
+
+// ── helpers ──
+function buildCSV(headers, rows) {
+  const escape = v => {
+    if (v == null) return '';
+    const s = String(v).replace(/"/g, '""');
+    return s.includes(',') || s.includes('\n') || s.includes('"') ? `"${s}"` : s;
+  };
+  return [headers, ...rows].map(row => row.map(escape).join(',')).join('\n');
+}
+
+function styleSheet(ws, colCount) {
+  // Set column widths
+  ws['!cols'] = Array(colCount).fill({ wch: 25 });
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function dateStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
   });
 }
